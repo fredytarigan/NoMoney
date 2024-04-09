@@ -1,5 +1,12 @@
-use actix_web::{get, middleware::Logger, web::Json, App, HttpServer, Responder, Result};
+use actix_web::{
+    get,
+    middleware::Logger,
+    web::{self, Json},
+    App, HttpServer, Responder, Result,
+};
 use serde_json::json;
+
+use crate::routes::family::RouteFamily;
 
 #[get("/")]
 async fn index() -> Result<impl Responder> {
@@ -23,12 +30,19 @@ pub async fn run() -> std::io::Result<()> {
 
     env_logger::init();
 
-    let server = HttpServer::new(|| {
+    let server = HttpServer::new(move || {
         App::new()
             // default route (/)
             .service(index)
             // health check route (/healthz)
             .service(healthz)
+            // api service
+            .service(
+                // api v1 scope
+                web::scope("/api/v1")
+                    // route for family
+                    .configure(RouteFamily::route),
+            )
             .wrap(Logger::default())
     })
     .bind(("0.0.0.0", 8080))
