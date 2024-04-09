@@ -1,34 +1,52 @@
-use actix_web::{get, web::Json, App, HttpServer, Responder, Result};
-use serde_json::json;
+extern crate nomoney;
 
-#[get("/")]
-async fn index() -> Result<impl Responder> {
-    Ok(Json(json!({
-        "result": "ok",
-        "message": "Hello World",
-    })))
-}
+use clap::{Arg, ArgAction, Command};
 
-#[get("/healthz")]
-async fn healthz() -> Result<impl Responder> {
-    Ok(Json(json!({
-        "result": "ok",
-        "message": "healthy"
-    })))
-}
+#[tokio::main]
+async fn main() -> std::io::Result<()> {
+    let cmd = Command::new("NoMoney")
+        .about("Family financial tracker api application")
+        .arg_required_else_help(true)
+        .subcommand(
+            Command::new("server")
+                .about("Server management")
+                .arg_required_else_help(true)
+                .arg(
+                    Arg::new("start")
+                        .required(false)
+                        .long("start")
+                        .help("Start api web server")
+                        .action(ArgAction::SetTrue),
+                )
+                .arg(
+                    Arg::new("stop")
+                        .required(false)
+                        .long("stop")
+                        .help("Stop api web server")
+                        .action(ArgAction::SetTrue),
+                )
+                .arg(
+                    Arg::new("reload")
+                        .required(false)
+                        .long("reload")
+                        .help("Reload api web server")
+                        .action(ArgAction::SetTrue),
+                ),
+        )
+        .get_matches();
 
-#[actix_web::main]
-pub async fn main() -> std::io::Result<()> {
-    let server = HttpServer::new(|| {
-        App::new()
-            // default route (/)
-            .service(index)
-            // health check route (/healthz)
-            .service(healthz)
-    })
-    .bind(("0.0.0.0", 8080))
-    .unwrap()
-    .run();
-
-    server.await
+    match cmd.subcommand() {
+        Some(("server", sub_cmd)) => {
+            if sub_cmd.get_one::<bool>("stop").unwrap().to_owned() {
+                println!("Stopping server");
+                Ok(())
+            } else if sub_cmd.get_one::<bool>("reload").unwrap().to_owned() {
+                println!("Reloading server");
+                Ok(())
+            } else {
+                Ok(nomoney::cmd::server::run().await?)
+            }
+        }
+        _ => Ok(()),
+    }
 }
