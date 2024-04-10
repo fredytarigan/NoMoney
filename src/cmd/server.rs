@@ -1,5 +1,5 @@
 use actix_web::{
-    get,
+    get, guard,
     middleware::Logger,
     web::{self, Json},
     App, HttpServer, Responder, Result,
@@ -45,6 +45,7 @@ pub async fn run() -> std::io::Result<()> {
             .service(
                 // api v1 scope
                 web::scope("/api/v1")
+                    .guard(guard::Header("content-type", "application/json"))
                     // route for family
                     .configure(RouteFamily::route),
             )

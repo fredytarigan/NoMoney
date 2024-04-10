@@ -1,6 +1,6 @@
 -- Your SQL goes here
 CREATE TABLE families (
-    id uuid DEFAULT gen_random_uuid(),
+    id uuid NOT NULL,
     name VARCHAR(64) NOT NULL,
     description TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW() NOT NULL,

@@ -5,7 +5,7 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Queryable, AsChangeset, Serialize, Deserialize)]
+#[derive(Queryable, AsChangeset, Serialize, Deserialize, Debug)]
 #[diesel(table_name=families)]
 pub struct Family {
     pub id: Uuid,
@@ -15,9 +15,11 @@ pub struct Family {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Deserialize)]
 #[diesel(table_name=families)]
 pub struct NewFamily {
+    #[serde(skip_deserializing)]
+    pub id: Uuid,
     pub name: String,
     pub description: String,
 }
