@@ -1,7 +1,7 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    family (id) {
+    families (id) {
         id -> Uuid,
         #[max_length = 64]
         name -> Varchar,

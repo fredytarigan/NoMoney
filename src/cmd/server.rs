@@ -6,7 +6,7 @@ use actix_web::{
 };
 use serde_json::json;
 
-use crate::routes::family::RouteFamily;
+use crate::routes::{self, family::RouteFamily};
 
 #[get("/")]
 async fn index() -> Result<impl Responder> {
@@ -30,8 +30,13 @@ pub async fn run() -> std::io::Result<()> {
 
     env_logger::init();
 
+    // initialize database pool
+    let pool = routes::initialize_db_pool().await;
+
     let server = HttpServer::new(move || {
         App::new()
+            .wrap(Logger::default())
+            .app_data(web::Data::new(pool.clone()))
             // default route (/)
             .service(index)
             // health check route (/healthz)
@@ -43,7 +48,6 @@ pub async fn run() -> std::io::Result<()> {
                     // route for family
                     .configure(RouteFamily::route),
             )
-            .wrap(Logger::default())
     })
     .bind(("0.0.0.0", 8080))
     .unwrap()

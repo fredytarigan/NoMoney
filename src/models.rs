@@ -2,10 +2,13 @@ use crate::schema::*;
 
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
-#[derive(Queryable)]
+#[derive(Queryable, AsChangeset, Serialize, Deserialize)]
+#[diesel(table_name=families)]
 pub struct Family {
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
     pub description: String,
     pub created_at: NaiveDateTime,
@@ -13,7 +16,7 @@ pub struct Family {
 }
 
 #[derive(Insertable)]
-#[diesel(table_name=family)]
+#[diesel(table_name=families)]
 pub struct NewFamily {
     pub name: String,
     pub description: String,

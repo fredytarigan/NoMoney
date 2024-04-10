@@ -1,5 +1,5 @@
 -- Your SQL goes here
-CREATE TABLE family (
+CREATE TABLE families (
     id uuid DEFAULT gen_random_uuid(),
     name VARCHAR(64) NOT NULL,
     description TEXT NOT NULL,

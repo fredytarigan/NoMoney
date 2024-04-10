@@ -1,3 +1,4 @@
+use crate::{repositories::FamilyRepository, routes::DbPool};
 use actix_web::{
     delete, get, post, put,
     web::{self, Json},
@@ -11,7 +12,7 @@ impl RouteFamily {
     pub fn route(cfg: &mut web::ServiceConfig) {
         cfg.service(
             web::scope("/family")
-                .service(get_family)
+                .service(index)
                 .service(view_family)
                 .service(create_family)
                 .service(update_family)
@@ -21,7 +22,8 @@ impl RouteFamily {
 }
 
 #[get("")]
-async fn get_family() -> Result<impl Responder> {
+async fn index(mut db: web::Data<DbPool>) -> Result<impl Responder> {
+    FamilyRepository::find_all(db, 100).await;
     Ok(Json(json!(
         {
             "result": "ok",
