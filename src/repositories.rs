@@ -1,5 +1,6 @@
 use crate::models::{Family, NewFamily};
 use crate::schema::*;
+use chrono::Utc;
 use uuid::Uuid;
 
 use diesel::prelude::*;
@@ -26,5 +27,28 @@ impl FamilyRepository {
             .values(data)
             .get_result(conn)
             .await
+    }
+
+    pub async fn update(
+        conn: &mut AsyncPgConnection,
+        id: Uuid,
+        mut data: Family,
+    ) -> QueryResult<Family> {
+        // set updated time into now()
+        let updated_time = Utc::now().naive_utc();
+        data.updated_at = updated_time;
+
+        diesel::update(families::table.find(id))
+            .set((
+                families::name.eq(data.name),
+                families::description.eq(data.description),
+                families::updated_at.eq(data.updated_at),
+            ))
+            .get_result(conn)
+            .await
+    }
+
+    pub async fn delete(conn: &mut AsyncPgConnection, id: Uuid) -> QueryResult<usize> {
+        diesel::delete(families::table.find(id)).execute(conn).await
     }
 }

@@ -8,9 +8,11 @@ use uuid::Uuid;
 #[derive(Queryable, AsChangeset, Serialize, Deserialize, Debug)]
 #[diesel(table_name=families)]
 pub struct Family {
+    #[serde(skip_deserializing)]
     pub id: Uuid,
     pub name: String,
     pub description: String,
+    #[serde(skip_deserializing)]
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
