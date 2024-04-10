@@ -2,6 +2,8 @@ use actix_web::{
     http::{header::ContentType, StatusCode},
     HttpResponse, ResponseError,
 };
+use diesel::result::Error as DieselError;
+use diesel_async::pooled_connection::bb8::RunError;
 use serde::Serialize;
 use std::fmt::Display;
 
@@ -9,6 +11,12 @@ use std::fmt::Display;
 pub struct ApplicationError {
     pub message: String,
     pub status: u16,
+}
+
+impl ApplicationError {
+    pub fn new(status: u16, message: String) -> Self {
+        Self { status, message }
+    }
 }
 
 impl Display for ApplicationError {
@@ -19,10 +27,36 @@ impl Display for ApplicationError {
     }
 }
 
+impl From<DieselError> for ApplicationError {
+    fn from(error: DieselError) -> Self {
+        match error {
+            DieselError::DatabaseError(_, err) => {
+                ApplicationError::new(500, err.message().to_string())
+            }
+            DieselError::NotFound => ApplicationError::new(404, String::from("Record not found")),
+
+            _ => ApplicationError::new(500, format!("Unhandled database error: {}", error)),
+        }
+    }
+}
+
+impl From<RunError> for ApplicationError {
+    fn from(error: RunError) -> Self {
+        match error {
+            RunError::TimedOut => ApplicationError::new(
+                500,
+                String::from("Server error: connection timed out to database"),
+            ),
+            _ => ApplicationError::new(500, format!("Unhandled database error: {}", error)),
+        }
+    }
+}
+
 impl ResponseError for ApplicationError {
     fn error_response(&self) -> actix_web::HttpResponse {
         let err_json = serde_json::json!({
-            "result": "error",
+            "status": "error",
+            "data": {},
             "message": self.message
         });
 

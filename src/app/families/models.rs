@@ -1,4 +1,4 @@
-use crate::schema::*;
+use crate::schema::families;
 
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
@@ -14,6 +14,7 @@ pub struct Family {
     pub description: String,
     #[serde(skip_deserializing)]
     pub created_at: NaiveDateTime,
+    #[serde(skip_deserializing)]
     pub updated_at: NaiveDateTime,
 }
 

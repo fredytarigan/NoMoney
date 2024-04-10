@@ -27,3 +27,6 @@ Cargo.lock
 
 # remove persistend docker data
 /data
+
+# remove env files
+/config/app.env

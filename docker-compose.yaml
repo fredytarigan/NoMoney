@@ -19,12 +19,5 @@ services:
 
   redis:
     image: redis:alpine
-
-  app:
-    build: ./
-    environment:
-      - DATABASE_URL=postgres://postgres:postgres@postgres/nomoney
     ports:
-      - 8080:8080
-    volumes:
-      - ./:/app/
+      - 6379:6379
