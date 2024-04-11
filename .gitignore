@@ -30,3 +30,6 @@ Cargo.lock
 
 # remove env files
 /config/app.env
+
+# IDE specific
+.vscode

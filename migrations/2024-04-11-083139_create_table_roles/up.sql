@@ -1,7 +1,7 @@
 -- Your SQL goes here
 CREATE TABLE roles (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
-    name VARCHAR(64) NOT NULL,
+    name VARCHAR(64) NOT NULL UNIQUE,
     description TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
