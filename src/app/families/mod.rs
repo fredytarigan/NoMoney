@@ -2,4 +2,4 @@ mod models;
 mod repositories;
 mod routes;
 
-pub use routes::RouteFamily;
+pub use routes::RouteFamilies;
