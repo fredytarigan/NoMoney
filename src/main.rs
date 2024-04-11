@@ -8,6 +8,7 @@ use actix_web::{
     web::{self, Json},
     App, HttpServer, Responder, Result,
 };
+use database::run_db_migrations;
 use env_logger::Env;
 use serde_json::json;
 
@@ -49,6 +50,9 @@ pub async fn main() -> std::io::Result<()> {
 
     // load database connection
     let database_connection = database::initialize_db_pool().await;
+
+    // run db migrations
+    run_db_migrations().await;
 
     HttpServer::new(move || {
         App::new()

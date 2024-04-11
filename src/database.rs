@@ -1,11 +1,9 @@
 use diesel_async::pooled_connection::{bb8::Pool, AsyncDieselConnectionManager};
-
 use diesel_async::AsyncPgConnection;
 
 pub type DbPool = Pool<AsyncPgConnection>;
 
-pub async fn initialize_db_pool() -> DbPool {
-    // construct database config from environment variables
+fn get_db_config() -> String {
     let db_config = match dotenvy::var("DATABASE_URL") {
         Ok(config) => config,
         Err(_) => {
@@ -23,6 +21,33 @@ pub async fn initialize_db_pool() -> DbPool {
             )
         }
     };
+
+    return db_config;
+}
+
+pub async fn run_db_migrations() {
+    use deadpool_diesel::postgres::{Manager, Pool as DeadPool};
+    use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+
+    const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/");
+
+    let db_config = get_db_config();
+
+    let manager = Manager::new(db_config, deadpool_diesel::Runtime::Tokio1);
+    let pool = DeadPool::builder(manager).build().unwrap();
+
+    let conn = pool.get().await.unwrap();
+
+    conn.interact(|conn| conn.run_pending_migrations(MIGRATIONS).map(|_| ()))
+        .await
+        .unwrap()
+        .unwrap();
+}
+
+pub async fn initialize_db_pool() -> DbPool {
+    // construct database config from environment variables
+
+    let db_config = get_db_config();
 
     let config = AsyncDieselConnectionManager::<AsyncPgConnection>::new(db_config);
 
