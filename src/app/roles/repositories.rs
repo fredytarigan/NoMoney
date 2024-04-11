@@ -1,6 +1,5 @@
 use super::models::*;
 use crate::{errors::ApplicationError, schema::*};
-use chrono::Utc;
 use uuid::Uuid;
 
 use diesel::prelude::*;
