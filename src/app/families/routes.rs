@@ -1,5 +1,5 @@
 use super::models::*;
-use super::repositories::FamilyRepository;
+use super::repositories::FamiliesRepository;
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
 use actix_web::{
@@ -12,26 +12,26 @@ use actix_web::{
 use serde_json::json;
 use uuid::Uuid;
 
-pub struct RouteFamily;
+pub struct RouteFamilies;
 
-impl RouteFamily {
+impl RouteFamilies {
     pub fn init(cfg: &mut web::ServiceConfig) {
         cfg.service(
             web::scope("/families")
-                .service(index_family)
-                .service(view_family)
-                .service(create_family)
-                .service(update_family)
-                .service(delete_family),
+                .service(index_families)
+                .service(view_families)
+                .service(create_families)
+                .service(update_families)
+                .service(delete_families),
         );
     }
 }
 
 #[get("")]
-async fn index_family(db: web::Data<DbPool>) -> Result<HttpResponse, ApplicationError> {
+async fn index_families(db: web::Data<DbPool>) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
 
-    let families = FamilyRepository::find_all(&mut conn, 100).await?;
+    let families = FamiliesRepository::find_all(&mut conn, 100).await?;
 
     Ok(HttpResponse::Ok().json(json!(
         {
@@ -43,7 +43,7 @@ async fn index_family(db: web::Data<DbPool>) -> Result<HttpResponse, Application
 }
 
 #[get("/{family_id}")]
-async fn view_family(
+async fn view_families(
     db: web::Data<DbPool>,
     path: web::Path<String>,
 ) -> Result<HttpResponse, ApplicationError> {
@@ -66,7 +66,7 @@ async fn view_family(
 
     let mut conn = db.get().await?;
 
-    let families = FamilyRepository::find_by_id(&mut conn, uid).await?;
+    let families = FamiliesRepository::find_by_id(&mut conn, uid).await?;
 
     Ok(HttpResponse::Ok().json(json!(
         {
@@ -78,13 +78,13 @@ async fn view_family(
 }
 
 #[post("")]
-async fn create_family(
+async fn create_families(
     db: web::Data<DbPool>,
     data: web::Json<NewFamily>,
 ) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
 
-    let families = FamilyRepository::create(&mut conn, data.into_inner()).await?;
+    let families = FamiliesRepository::create(&mut conn, data.into_inner()).await?;
 
     Ok(HttpResponse::Created().json(json!(
         {
@@ -96,7 +96,7 @@ async fn create_family(
 }
 
 #[put("/{family_id}")]
-async fn update_family(
+async fn update_families(
     db: web::Data<DbPool>,
     path: web::Path<String>,
     data: web::Json<Family>,
@@ -120,7 +120,7 @@ async fn update_family(
 
     let mut conn = db.get().await?;
 
-    let families = FamilyRepository::update(&mut conn, uid, data.into_inner()).await?;
+    let families = FamiliesRepository::update(&mut conn, uid, data.into_inner()).await?;
 
     Ok(HttpResponse::Ok().json(json!(
         {
@@ -132,7 +132,7 @@ async fn update_family(
 }
 
 #[delete("/{family_id}")]
-async fn delete_family(
+async fn delete_families(
     db: web::Data<DbPool>,
     path: web::Path<String>,
 ) -> Result<HttpResponse, ApplicationError> {
@@ -155,7 +155,7 @@ async fn delete_family(
 
     let mut conn = db.get().await?;
 
-    let _ = FamilyRepository::delete(&mut conn, uid).await?;
+    let _ = FamiliesRepository::delete(&mut conn, uid).await?;
 
     Ok(HttpResponse::new(StatusCode::NO_CONTENT))
 }

@@ -6,9 +6,9 @@ use uuid::Uuid;
 use diesel::prelude::*;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 
-pub struct FamilyRepository;
+pub struct FamiliesRepository;
 
-impl FamilyRepository {
+impl FamiliesRepository {
     pub async fn find_all(
         conn: &mut AsyncPgConnection,
         limit: i64,
