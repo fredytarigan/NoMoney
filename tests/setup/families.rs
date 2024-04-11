@@ -9,8 +9,8 @@ pub fn create_test_families(client: &Client) -> Value {
         .post(format!("{}/families", APP_HOST))
         .json(&json!(
             {
-                "name": "Test Family",
-                "description": "Rust Test Family Data"
+                "name": "Test Family Name",
+                "description": "Test Family Description"
             }
         ))
         .send()
@@ -18,20 +18,20 @@ pub fn create_test_families(client: &Client) -> Value {
 
     assert_eq!(response.status(), StatusCode::CREATED);
 
-    let json: Value = response.json().unwrap();
+    let families: Value = response.json().unwrap();
 
     assert_eq!(
-        json["data"],
+        families["data"],
         json!({
-            "id": json["data"]["id"],
-            "name": "Test Family",
-            "description": "Rust Test Family Data",
-            "created_at": json["data"]["created_at"],
-            "updated_at": json["data"]["updated_at"],
+            "id": families["data"]["id"],
+            "name": "Test Family Name",
+            "description": "Test Family Description",
+            "created_at": families["data"]["created_at"],
+            "updated_at": families["data"]["updated_at"],
         })
     );
 
-    return json;
+    return families;
 }
 
 pub fn delete_test_families(client: &Client, families: Value) {
