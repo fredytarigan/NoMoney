@@ -1,4 +1,4 @@
-use super::repositories::RolesRepository;
+use super::repositories::Repository;
 use crate::app::utils::parse_uuid;
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
@@ -9,9 +9,9 @@ use actix_web::{
 };
 use serde_json::json;
 
-pub struct RouteRoles;
+pub struct Router;
 
-impl RouteRoles {
+impl Router {
     pub fn init(cfg: &mut web::ServiceConfig) {
         cfg.service(
             web::scope("/roles")
@@ -25,7 +25,7 @@ impl RouteRoles {
 async fn index_roles(db: web::Data<DbPool>) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
 
-    let roles = RolesRepository::find_all(&mut conn, 100).await?;
+    let roles = Repository::find_all(&mut conn, 100).await?;
 
     Ok(HttpResponse::Ok().json(json!({
         "status": "success",
@@ -47,7 +47,7 @@ async fn view_roles(
 
     let mut conn = db.get().await?;
 
-    let roles = RolesRepository::find_by_id(&mut conn, uid).await?;
+    let roles = Repository::find_by_id(&mut conn, uid).await?;
 
     Ok(HttpResponse::Ok().json(json!(
         {

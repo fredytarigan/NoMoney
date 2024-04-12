@@ -5,12 +5,12 @@ mod roles;
 mod users;
 mod utils;
 
-use families::RouteFamilies;
-use roles::RouteRoles;
+use families::Router as FamiliesRouter;
+use roles::Router as RolesRouter;
 use users::Router as UsersRouter;
 
 pub fn register_routes(cfg: &mut web::ServiceConfig) {
-    RouteFamilies::init(cfg);
-    RouteRoles::init(cfg);
+    FamiliesRouter::init(cfg);
+    RolesRouter::init(cfg);
     UsersRouter::init(cfg);
 }

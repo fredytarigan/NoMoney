@@ -91,7 +91,7 @@ impl Repository {
 
     pub async fn create(
         conn: &mut AsyncPgConnection,
-        mut data: NewUser,
+        mut data: CreateUser,
     ) -> Result<GetUser, ApplicationError> {
         let id = uuid::Uuid::new_v4();
 
