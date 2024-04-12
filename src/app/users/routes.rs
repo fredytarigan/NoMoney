@@ -21,7 +21,8 @@ impl Router {
                 .service(index_users)
                 .service(view_users)
                 .service(create_users)
-                .service(update_users),
+                .service(update_users)
+                .service(delete_users),
         );
     }
 }
@@ -106,8 +107,17 @@ async fn update_users(
 
 #[delete("/{user_id}")]
 async fn delete_users(
-    _db: web::Data<DbPool>,
-    _path: web::Path<String>,
+    db: web::Data<DbPool>,
+    path: web::Path<String>,
 ) -> Result<HttpResponse, ApplicationError> {
+    let user_id = path.into_inner();
+
+    // try parse the family_id if a valid uuid
+    // if it not valid, then return 404 not found
+    let uid = parse_uuid(&user_id)?;
+
+    let mut conn = db.get().await?;
+    let _ = Repository::delete(&mut conn, uid).await?;
+
     Ok(HttpResponse::new(StatusCode::NO_CONTENT))
 }

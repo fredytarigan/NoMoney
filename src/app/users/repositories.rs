@@ -134,4 +134,10 @@ impl Repository {
 
         Ok(users.into())
     }
+
+    pub async fn delete(conn: &mut AsyncPgConnection, id: Uuid) -> Result<usize, ApplicationError> {
+        let result = diesel::delete(users::table.find(id)).execute(conn).await?;
+
+        Ok(result)
+    }
 }
