@@ -6,9 +6,9 @@ use uuid::Uuid;
 use diesel::prelude::*;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 
-pub struct FamiliesRepository;
+pub struct Repository;
 
-impl FamiliesRepository {
+impl Repository {
     pub async fn find_all(
         conn: &mut AsyncPgConnection,
         limit: i64,
@@ -29,7 +29,7 @@ impl FamiliesRepository {
 
     pub async fn create(
         conn: &mut AsyncPgConnection,
-        mut data: NewFamily,
+        mut data: CreateFamily,
     ) -> Result<Family, ApplicationError> {
         let id = uuid::Uuid::new_v4();
 

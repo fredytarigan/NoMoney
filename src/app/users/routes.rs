@@ -67,7 +67,7 @@ async fn view_users(
 #[post("")]
 async fn create_users(
     db: web::Data<DbPool>,
-    data: web::Json<NewUser>,
+    data: web::Json<CreateUser>,
 ) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
     let users: GetUser = Repository::create(&mut conn, data.into_inner()).await?;

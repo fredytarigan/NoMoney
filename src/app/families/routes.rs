@@ -1,5 +1,5 @@
 use super::models::*;
-use super::repositories::FamiliesRepository;
+use super::repositories::Repository;
 use crate::app::utils::parse_uuid;
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
@@ -12,9 +12,9 @@ use actix_web::{
 };
 use serde_json::json;
 
-pub struct RouteFamilies;
+pub struct Router;
 
-impl RouteFamilies {
+impl Router {
     pub fn init(cfg: &mut web::ServiceConfig) {
         cfg.service(
             web::scope("/families")
@@ -31,7 +31,7 @@ impl RouteFamilies {
 async fn index_families(db: web::Data<DbPool>) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
 
-    let families = FamiliesRepository::find_all(&mut conn, 100).await?;
+    let families = Repository::find_all(&mut conn, 100).await?;
 
     Ok(HttpResponse::Ok().json(json!(
         {
@@ -55,7 +55,7 @@ async fn view_families(
 
     let mut conn = db.get().await?;
 
-    let families = FamiliesRepository::find_by_id(&mut conn, uid).await?;
+    let families = Repository::find_by_id(&mut conn, uid).await?;
 
     Ok(HttpResponse::Ok().json(json!(
         {
@@ -69,11 +69,11 @@ async fn view_families(
 #[post("")]
 async fn create_families(
     db: web::Data<DbPool>,
-    data: web::Json<NewFamily>,
+    data: web::Json<CreateFamily>,
 ) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
 
-    let families = FamiliesRepository::create(&mut conn, data.into_inner()).await?;
+    let families = Repository::create(&mut conn, data.into_inner()).await?;
 
     Ok(HttpResponse::Created().json(json!(
         {
@@ -98,7 +98,7 @@ async fn update_families(
 
     let mut conn = db.get().await?;
 
-    let families = FamiliesRepository::update(&mut conn, uid, data.into_inner()).await?;
+    let families = Repository::update(&mut conn, uid, data.into_inner()).await?;
 
     Ok(HttpResponse::Ok().json(json!(
         {
@@ -122,7 +122,7 @@ async fn delete_families(
 
     let mut conn = db.get().await?;
 
-    let _ = FamiliesRepository::delete(&mut conn, uid).await?;
+    let _ = Repository::delete(&mut conn, uid).await?;
 
     Ok(HttpResponse::new(StatusCode::NO_CONTENT))
 }

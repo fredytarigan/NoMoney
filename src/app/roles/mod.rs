@@ -3,4 +3,4 @@ mod repositories;
 mod routes;
 
 pub use models::Role;
-pub use routes::RouteRoles;
+pub use routes::Router;
