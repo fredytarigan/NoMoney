@@ -25,4 +25,16 @@ impl RolesRepository {
 
         Ok(roles)
     }
+
+    pub async fn _find_by_name(
+        conn: &mut AsyncPgConnection,
+        name: &String,
+    ) -> Result<Role, ApplicationError> {
+        let roles = roles::table
+            .filter(roles::name.eq(name))
+            .get_result(conn)
+            .await?;
+
+        Ok(roles)
+    }
 }
