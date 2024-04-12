@@ -1,4 +1,5 @@
 /* */
+#[macro_use]
 extern crate log;
 
 use actix_web::{
@@ -52,6 +53,9 @@ pub async fn main() -> std::io::Result<()> {
 
     // run db migrations
     run_db_migrations().await;
+
+    info!("Running server");
+    info!("Listening on {} at port {}", server_host, server_address);
 
     HttpServer::new(move || {
         App::new()

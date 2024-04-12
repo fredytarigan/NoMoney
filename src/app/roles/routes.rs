@@ -1,4 +1,5 @@
 use super::repositories::RolesRepository;
+use crate::app::utils::parse_uuid;
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
 use actix_web::{
@@ -7,7 +8,6 @@ use actix_web::{
     HttpResponse, Result,
 };
 use serde_json::json;
-use uuid::Uuid;
 
 pub struct RouteRoles;
 
@@ -43,15 +43,7 @@ async fn view_roles(
 
     // try parse the family_id if a valid uuid
     // if it not valid, then return 404 not found
-    let uid = match Uuid::parse_str(&role_id) {
-        Ok(uid) => uid,
-        Err(_) => {
-            return Err(ApplicationError::new(
-                422,
-                format!("invalid input for uid with value: {}", role_id.to_string()),
-            ))
-        }
-    };
+    let uid = parse_uuid(&role_id)?;
 
     let mut conn = db.get().await?;
 

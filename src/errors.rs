@@ -2,6 +2,7 @@ use actix_web::{
     http::{header::ContentType, StatusCode},
     HttpResponse, ResponseError,
 };
+use argon2::password_hash::Error as HashError;
 use diesel::result::Error as DieselError;
 use diesel_async::pooled_connection::bb8::RunError;
 use serde::Serialize;
@@ -52,8 +53,21 @@ impl From<RunError> for ApplicationError {
     }
 }
 
+impl From<HashError> for ApplicationError {
+    fn from(error: HashError) -> Self {
+        match error {
+            _ => {
+                error!("Something error when trying to hash incoming password");
+                ApplicationError::new(500, format!("Something wrong happend in our side"))
+            }
+        }
+    }
+}
+
 impl ResponseError for ApplicationError {
     fn error_response(&self) -> actix_web::HttpResponse {
+        error!("Response Error: {}", self.message);
+
         let err_json = serde_json::json!({
             "status": "error",
             "data": {},
