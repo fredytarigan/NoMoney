@@ -24,3 +24,11 @@ pub struct CreateRole {
     pub name: String,
     pub description: String,
 }
+
+/*
+    Struct for request query on search endpoint
+*/
+#[derive(Deserialize, Debug)]
+pub struct SearchRole {
+    pub name: Option<String>,
+}

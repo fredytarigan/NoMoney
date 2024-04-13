@@ -1,3 +1,4 @@
+use super::models::SearchRole;
 use super::repositories::Repository;
 use crate::app::utils::parse_uuid;
 use crate::database::DbPool;
@@ -16,6 +17,7 @@ impl Router {
         cfg.service(
             web::scope("/roles")
                 .service(index_roles)
+                .service(search_roles_by_name)
                 .service(view_roles),
         );
     }
@@ -56,4 +58,35 @@ async fn view_roles(
             "message": null,
         }
     )))
+}
+
+#[get("/search")]
+async fn search_roles_by_name(
+    db: web::Data<DbPool>,
+    query: web::Query<SearchRole>,
+) -> Result<HttpResponse, ApplicationError> {
+    match query.name.to_owned() {
+        Some(name) => {
+            let mut conn = db.get().await?;
+            let roles = Repository::find_by_name(&mut conn, &name).await?;
+
+            return Ok(HttpResponse::Ok().json(json!(
+                {
+                    "status": "success",
+                    "data": roles,
+                    "message": null,
+                }
+            )));
+        }
+        None => {
+            info!("Missing query parameters for \"name\" field");
+            return Ok(HttpResponse::Ok().json(json!(
+                {
+                    "status": "failed",
+                    "data": null,
+                    "message": "Missing query parameters for 'name' field",
+                }
+            )));
+        }
+    };
 }

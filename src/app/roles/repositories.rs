@@ -26,7 +26,7 @@ impl Repository {
         Ok(roles)
     }
 
-    pub async fn _find_by_name(
+    pub async fn find_by_name(
         conn: &mut AsyncPgConnection,
         name: &String,
     ) -> Result<Role, ApplicationError> {
