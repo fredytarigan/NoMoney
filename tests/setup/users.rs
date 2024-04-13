@@ -4,7 +4,12 @@ use serde_json::Value;
 
 use super::APP_HOST;
 
-pub fn create_test_users(client: &Client, family_id: &String, role: String) -> Value {
+pub fn create_test_users(
+    client: &Client,
+    family_id: &String,
+    role: String,
+    username: &String,
+) -> Value {
     // get role
     let roles = client
         .get(format!("{}/roles/search?name={}", APP_HOST, role))
@@ -18,7 +23,7 @@ pub fn create_test_users(client: &Client, family_id: &String, role: String) -> V
         .post(format!("{}/users", APP_HOST))
         .json(&json!(
             {
-                "username": format!("test.user.{}", role),
+                "username": username,
                 "password": "12345678",
                 "active": true,
                 "family_id": family_id,
@@ -41,7 +46,7 @@ pub fn create_test_users(client: &Client, family_id: &String, role: String) -> V
         json!(
             {
                 "id": users["data"]["id"],
-                "username": format!("test.user.{}", role),
+                "username": username,
                 "active": true,
                 "family_id": family_id,
                 "role_id": role_id,
