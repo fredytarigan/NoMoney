@@ -2,17 +2,15 @@ mod models;
 mod repositories;
 mod routes;
 
-use mobc_redis::redis::AsyncCommands;
 pub use routes::Router;
 
-use actix_web::{web, FromRequest};
-
-// pub use models::UserPasswordCredentials;
+use super::users::LoggedUser;
 use crate::app::users::Repository as UserRepository;
 use crate::redis::CachePool;
 use crate::{database::DbPool, errors::ApplicationError};
 
-use super::users::LoggedUser;
+use actix_web::{web, FromRequest};
+use mobc_redis::redis::AsyncCommands;
 
 impl FromRequest for LoggedUser {
     type Error = ApplicationError;
