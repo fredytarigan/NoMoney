@@ -171,6 +171,101 @@ fn test_view_users() {
         )
     );
 
+    // test view data with dummy id
+    let dummy_uuid = uuid::Uuid::new_v4();
+    let response = client
+        .get(format!("{}/users/{}", APP_HOST, dummy_uuid))
+        .send()
+        .unwrap();
+
+    // response should be 404
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
+
+    /*
+       Cleanup Section
+    */
+    delete_test_users(&client, users);
+    delete_test_families(&client, families);
+}
+
+#[test]
+fn test_update_users() {
+    /*
+       Setup Section
+    */
+    let client = setup_client();
+    let families = create_test_families(&client);
+    let family_id = families["data"]["id"].as_str().unwrap();
+    let role = String::from("viewer");
+    let username = String::from("test.user.viewer.update");
+    let users = create_test_users(&client, &family_id.to_string(), role, &username);
+    let uid = users["data"]["id"].as_str().unwrap();
+
+    /*
+       Test Section
+    */
+    // response test
+    let response = client
+        .put(format!("{}/users/{}", APP_HOST, uid))
+        .json(&json!({
+            "username": users["data"]["username"],
+            "first_name": "Changed First Name",
+            "last_name": "Changed Last Name",
+            "active": users["data"]["active"],
+            "family_id": users["data"]["family_id"],
+            "role_id": users["data"]["role_id"],
+            "email": users["data"]["email"],
+            "email_validated": users["data"]["email_validated"],
+        }))
+        .send()
+        .unwrap();
+
+    // response should be 200
+    assert_eq!(response.status(), StatusCode::OK);
+
+    // data test
+    let users: Value = response.json().unwrap();
+
+    // left side should matched right side
+    assert_eq!(
+        users["data"],
+        json!(
+            {
+                "id": users["data"]["id"],
+                "username": username,
+                "active": true,
+                "family_id": users["data"]["family_id"],
+                "role_id": users["data"]["role_id"],
+                "email": "test.user.viewer@example.org",
+                "email_validated": true,
+                "first_name": "Changed First Name",
+                "last_name": "Changed Last Name",
+                "created_at": users["data"]["created_at"],
+                "updated_at": users["data"]["updated_at"],
+            }
+        )
+    );
+
+    // test update with dummy id
+    let dummy_uuid = uuid::Uuid::new_v4();
+    let response = client
+        .put(format!("{}/users/{}", APP_HOST, dummy_uuid))
+        .json(&json!({
+            "username": users["data"]["username"],
+            "first_name": "Modified First Name",
+            "last_name": "Modified Last Name",
+            "active": users["data"]["active"],
+            "family_id": users["data"]["family_id"],
+            "role_id": users["data"]["role_id"],
+            "email": users["data"]["email"],
+            "email_validated": users["data"]["email_validated"],
+        }))
+        .send()
+        .unwrap();
+
+    // response should be 404
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
+
     /*
        Cleanup Section
     */
@@ -212,4 +307,9 @@ fn test_delete_users() {
 
     // response should be 204
     assert_eq!(response.status(), StatusCode::NO_CONTENT);
+
+    /*
+       Cleanup Section
+    */
+    delete_test_families(&client, families);
 }
