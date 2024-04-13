@@ -14,11 +14,11 @@ pub fn hash_password(password: String) -> Result<String, ApplicationError> {
 }
 
 pub fn parse_uuid(uuid: &String) -> Result<Uuid, ApplicationError> {
-    match Uuid::parse_str(&uuid) {
+    match Uuid::parse_str(uuid) {
         Ok(uid) => Ok(uid),
         Err(_) => {
             error!("Invalid input for user id with value: {}", uuid.to_string());
-            return Err(ApplicationError::new(422, format!("Invalid input")));
+            Err(ApplicationError::new(422, String::from("Invalid input")))
         }
     }
 }

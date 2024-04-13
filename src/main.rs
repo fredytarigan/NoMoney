@@ -4,7 +4,7 @@ extern crate log;
 
 use actix_web::{
     get, guard,
-    middleware::Logger,
+    middleware::{self, Logger},
     web::{self, Json},
     App, HttpServer, Responder, Result,
 };
@@ -15,6 +15,7 @@ use serde_json::json;
 mod app;
 mod database;
 mod errors;
+mod redis;
 mod schema;
 
 #[get("/")]
@@ -51,6 +52,9 @@ pub async fn main() -> std::io::Result<()> {
     // load database connection
     let database_connection = database::initialize_db_pool().await;
 
+    // load redis connection
+    let redis_connection = redis::initialize_redis_pool().await;
+
     // run db migrations
     run_db_migrations().await;
 
@@ -60,7 +64,10 @@ pub async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
+            .wrap(middleware::DefaultHeaders::new().add(("content-type", "application/json")))
+            .wrap(middleware::DefaultHeaders::new().add(("X-Server", "NoMoney")))
             .app_data(web::Data::new(database_connection.clone()))
+            .app_data(web::Data::new(redis_connection.clone()))
             // default root route ( / )
             .service(index)
             // health check route ( /healthz )

@@ -28,7 +28,10 @@ impl Router {
 }
 
 #[get("")]
-async fn index_users(db: web::Data<DbPool>) -> Result<HttpResponse, ApplicationError> {
+async fn index_users(
+    db: web::Data<DbPool>,
+    _user: LoggedUser,
+) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
     let users = Repository::find_all(&mut conn, 100).await?;
 
@@ -45,6 +48,7 @@ async fn index_users(db: web::Data<DbPool>) -> Result<HttpResponse, ApplicationE
 async fn view_users(
     db: web::Data<DbPool>,
     path: web::Path<String>,
+    _user: LoggedUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let user_id = path.into_inner();
 
@@ -68,6 +72,7 @@ async fn view_users(
 async fn create_users(
     db: web::Data<DbPool>,
     data: web::Json<CreateUser>,
+    _user: LoggedUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
     let users: GetUser = Repository::create(&mut conn, data.into_inner()).await?;

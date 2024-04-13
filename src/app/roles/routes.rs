@@ -70,23 +70,23 @@ async fn search_roles_by_name(
             let mut conn = db.get().await?;
             let roles = Repository::find_by_name(&mut conn, &name).await?;
 
-            return Ok(HttpResponse::Ok().json(json!(
+            Ok(HttpResponse::Ok().json(json!(
                 {
                     "status": "success",
                     "data": roles,
                     "message": null,
                 }
-            )));
+            )))
         }
         None => {
             info!("Missing query parameters for \"name\" field");
-            return Ok(HttpResponse::Ok().json(json!(
+            Ok(HttpResponse::Ok().json(json!(
                 {
                     "status": "failed",
                     "data": null,
                     "message": "Missing query parameters for 'name' field",
                 }
-            )));
+            )))
         }
-    };
+    }
 }

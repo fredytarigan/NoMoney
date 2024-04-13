@@ -86,3 +86,9 @@ pub struct LoginUser {
     pub username: String,
     pub password: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct LoggedUser {
+    pub id: Uuid,
+    pub username: String,
+}

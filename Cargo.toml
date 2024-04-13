@@ -23,6 +23,8 @@ uuid = { version = "1", features = ["v4", "serde"] }
 derive_more = { version = "0.99" }
 argon2 = "0.5"
 rand = "0.8"
+mobc = { version = "0.8" }
+mobc-redis = { version = "0.8" }
 
 [dev-dependencies]
 reqwest = { version = "0.12", features = ["json", "blocking"] }

@@ -3,8 +3,8 @@ use super::repositories::Repository;
 // use crate::app::utils::parse_uuid;
 use crate::app::users::Repository as UserRepository;
 use crate::app::RouterConfig;
-use crate::database::DbPool;
 use crate::errors::ApplicationError;
+use crate::{database::DbPool, redis::CachePool};
 use actix_web::{
     post,
     web::{self},
@@ -27,6 +27,7 @@ impl RouterConfig for Router {
 #[post("/login")]
 async fn login_user_password(
     db: web::Data<DbPool>,
+    cache: web::Data<CachePool>,
     credentials: web::Json<UserPasswordCredentials>,
 ) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
@@ -34,15 +35,31 @@ async fn login_user_password(
         .await
         .map_err(|e| {
             error!("Login Error: {}", e);
-            ApplicationError::new(403, format!("Unauthorized, please check your credentials"))
+            ApplicationError::new(
+                403,
+                String::from("Unauthorized, please check your credentials"),
+            )
         })?;
 
     let token = Repository::authorize_user(&user, credentials.into_inner())
         .await
         .map_err(|e| {
             info!("Authorized Error: {}", e);
-            ApplicationError::new(403, format!("Unauthorized, please check your credentials"))
+            ApplicationError::new(
+                403,
+                String::from("Unauthorized, please check your credentials"),
+            )
         })?;
+
+    let mut cache_conn = cache.get().await.unwrap();
+
+    // construct session in cache server
+    let session_path = format!("nomoney/session/{}", token);
+    let session_value = format!("{}", user.id);
+    let session_ttl = 3 * 60 * 60;
+
+    Repository::set_session_cache(&mut cache_conn, session_path, session_value, session_ttl)
+        .await?;
 
     Ok(HttpResponse::Ok().json(json!(
         {

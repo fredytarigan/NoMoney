@@ -4,7 +4,7 @@ use diesel_async::AsyncPgConnection;
 pub type DbPool = Pool<AsyncPgConnection>;
 
 fn get_db_config() -> String {
-    let db_config = match dotenvy::var("DATABASE_URL") {
+    match dotenvy::var("DATABASE_URL") {
         Ok(config) => config,
         Err(_) => {
             // construct database url from environment variables
@@ -20,9 +20,7 @@ fn get_db_config() -> String {
                 db_user, db_password, db_host, db_port, db_name,
             )
         }
-    };
-
-    return db_config;
+    }
 }
 
 pub async fn run_db_migrations() {

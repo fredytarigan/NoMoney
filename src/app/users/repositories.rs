@@ -69,7 +69,7 @@ impl Repository {
         Ok(users)
     }
 
-    pub async fn find_by_username(
+    pub async fn _find_by_username(
         conn: &mut AsyncPgConnection,
         username: &String,
     ) -> Result<GetUser, ApplicationError> {

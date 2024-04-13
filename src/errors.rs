@@ -54,12 +54,10 @@ impl From<RunError> for ApplicationError {
 }
 
 impl From<HashError> for ApplicationError {
-    fn from(error: HashError) -> Self {
-        match error {
-            _ => {
-                error!("Something error when trying to hash incoming password");
-                ApplicationError::new(500, format!("Something wrong happend in our side"))
-            }
+    fn from(_: HashError) -> Self {
+        {
+            error!("Something error when trying to hash incoming password");
+            ApplicationError::new(500, String::from("Something wrong happend in our side"))
         }
     }
 }
