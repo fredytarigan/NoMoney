@@ -21,8 +21,6 @@ pub struct Family {
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name=families)]
 pub struct CreateFamily {
-    #[serde(skip_deserializing)]
-    pub id: Uuid,
     pub name: String,
     pub description: String,
 }

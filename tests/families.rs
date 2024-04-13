@@ -224,3 +224,25 @@ fn test_delete_families() {
     // response should be 204
     assert_eq!(response.status(), StatusCode::NO_CONTENT);
 }
+
+#[test]
+fn test_default_families() {
+    /*
+       Setup Section
+    */
+    let client = setup_client();
+
+    /*
+       Test Section
+    */
+    // response test
+    let response = client.get(format!("{}/families", APP_HOST)).send().unwrap();
+
+    // response should be 200
+    assert_eq!(response.status(), StatusCode::OK);
+
+    // data test
+    let families: Value = response.json().unwrap();
+
+    assert!(families["data"].as_array().unwrap().len() > 0);
+}

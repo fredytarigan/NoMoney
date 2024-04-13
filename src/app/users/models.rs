@@ -32,8 +32,6 @@ pub struct User {
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name = users)]
 pub struct CreateUser {
-    #[serde(skip_deserializing)]
-    pub id: Uuid,
     pub username: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,

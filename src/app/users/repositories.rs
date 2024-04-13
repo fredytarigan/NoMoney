@@ -93,11 +93,6 @@ impl Repository {
         conn: &mut AsyncPgConnection,
         mut data: CreateUser,
     ) -> Result<GetUser, ApplicationError> {
-        let id = uuid::Uuid::new_v4();
-
-        // inject generated uuid into data
-        data.id = id;
-
         data.password = hash_password(data.password)?;
 
         let users = diesel::insert_into(users::table)

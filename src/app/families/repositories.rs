@@ -29,13 +29,8 @@ impl Repository {
 
     pub async fn create(
         conn: &mut AsyncPgConnection,
-        mut data: CreateFamily,
+        data: CreateFamily,
     ) -> Result<Family, ApplicationError> {
-        let id = uuid::Uuid::new_v4();
-
-        // inject generated uuid into data
-        data.id = id;
-
         let families = diesel::insert_into(families::table)
             .values(data)
             .get_result(conn)

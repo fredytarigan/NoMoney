@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Queryable, AsChangeset, Serialize, Deserialize, Debug)]
-#[diesel(table_name=roles)]
+#[diesel(table_name = roles)]
 pub struct Role {
     #[serde(skip_deserializing)]
     pub id: Uuid,
@@ -16,4 +16,19 @@ pub struct Role {
     pub created_at: NaiveDateTime,
     #[serde(skip_deserializing)]
     pub updated_at: NaiveDateTime,
+}
+
+#[derive(Insertable, Deserialize)]
+#[diesel(table_name = roles)]
+pub struct CreateRole {
+    pub name: String,
+    pub description: String,
+}
+
+/*
+    Struct for request query on search endpoint
+*/
+#[derive(Deserialize, Debug)]
+pub struct SearchRole {
+    pub name: Option<String>,
 }
