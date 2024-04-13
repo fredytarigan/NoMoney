@@ -1,6 +1,7 @@
 use super::models::*;
 use super::repositories::Repository;
 use crate::app::utils::parse_uuid;
+use crate::app::RouterConfig;
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
 use actix_web::{
@@ -14,8 +15,8 @@ use serde_json::json;
 
 pub struct Router;
 
-impl Router {
-    pub fn init(cfg: &mut web::ServiceConfig) {
+impl RouterConfig for Router {
+    fn init(cfg: &mut web::ServiceConfig) {
         cfg.service(
             web::scope("/families")
                 .service(index_families)

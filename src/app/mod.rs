@@ -11,6 +11,10 @@ use families::Router as FamiliesRouter;
 use roles::Router as RolesRouter;
 use users::Router as UsersRouter;
 
+pub trait RouterConfig {
+    fn init(cfg: &mut web::ServiceConfig);
+}
+
 pub fn register_routes(cfg: &mut web::ServiceConfig) {
     FamiliesRouter::init(cfg);
     RolesRouter::init(cfg);
