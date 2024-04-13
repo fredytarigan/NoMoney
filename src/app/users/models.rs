@@ -78,3 +78,11 @@ impl From<User> for GetUser {
         }
     }
 }
+
+#[derive(Queryable, Serialize, Deserialize, QueryableByName, Debug)]
+#[diesel(table_name = users)]
+pub struct LoginUser {
+    pub id: Uuid,
+    pub username: String,
+    pub password: String,
+}

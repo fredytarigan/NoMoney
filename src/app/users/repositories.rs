@@ -69,14 +69,54 @@ impl Repository {
         Ok(users)
     }
 
-    pub async fn _find_by_username(
+    pub async fn find_by_username(
         conn: &mut AsyncPgConnection,
         username: &String,
-    ) -> Result<User, ApplicationError> {
-        let users = users::table
-            .filter(users::username.eq(username))
-            .get_result(conn)
-            .await?;
+    ) -> Result<GetUser, ApplicationError> {
+        let users = sql_query(format!(
+            "SELECT
+                id,
+                username,
+                first_name,
+                last_name,
+                active,
+                family_id,
+                role_id,
+                email,
+                email_validated,
+                created_at,
+                updated_at
+            FROM
+                users
+            WHERE
+                username = '{}'
+            ",
+            username
+        ))
+        .get_result::<GetUser>(conn)
+        .await?;
+
+        Ok(users)
+    }
+
+    pub async fn login_by_username(
+        conn: &mut AsyncPgConnection,
+        username: &String,
+    ) -> Result<LoginUser, ApplicationError> {
+        let users = sql_query(format!(
+            "SELECT
+                id,
+                username,
+                password
+            FROM
+                users
+            WHERE
+                username = '{}'
+            ",
+            username,
+        ))
+        .get_result::<LoginUser>(conn)
+        .await?;
 
         Ok(users)
     }
