@@ -51,6 +51,8 @@ pub struct GetUser {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub active: bool,
+    pub family_id: Uuid,
+    pub role_id: Uuid,
     pub email: String,
     pub email_validated: bool,
     #[serde(skip_deserializing)]
@@ -67,6 +69,8 @@ impl From<User> for GetUser {
             first_name: user.first_name,
             last_name: user.last_name,
             active: user.active,
+            family_id: user.family_id,
+            role_id: user.role_id,
             email: user.email,
             email_validated: user.email_validated,
             created_at: user.created_at,
