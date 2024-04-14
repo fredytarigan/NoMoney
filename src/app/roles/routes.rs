@@ -1,6 +1,6 @@
 use super::models::SearchRole;
 use super::repositories::Repository;
-use crate::app::utils::parse_uuid;
+use crate::app::{permissions::AdminUser, utils::parse_uuid};
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
 use actix_web::{
@@ -24,7 +24,10 @@ impl Router {
 }
 
 #[get("")]
-async fn index_roles(db: web::Data<DbPool>) -> Result<HttpResponse, ApplicationError> {
+async fn index_roles(
+    db: web::Data<DbPool>,
+    _user: AdminUser,
+) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
 
     let roles = Repository::find_all(&mut conn, 100).await?;
@@ -40,6 +43,7 @@ async fn index_roles(db: web::Data<DbPool>) -> Result<HttpResponse, ApplicationE
 async fn view_roles(
     db: web::Data<DbPool>,
     path: web::Path<String>,
+    _user: AdminUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let role_id = path.into_inner();
 
@@ -64,6 +68,7 @@ async fn view_roles(
 async fn search_roles_by_name(
     db: web::Data<DbPool>,
     query: web::Query<SearchRole>,
+    _user: AdminUser,
 ) -> Result<HttpResponse, ApplicationError> {
     match query.name.to_owned() {
         Some(name) => {

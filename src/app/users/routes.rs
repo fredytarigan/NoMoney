@@ -1,6 +1,7 @@
 use super::models::*;
 use super::repositories::Repository;
-use crate::app::utils::parse_uuid;
+use crate::app::permissions::EditorUser;
+use crate::app::{permissions::AdminUser, utils::parse_uuid};
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
 use actix_web::{
@@ -30,7 +31,7 @@ impl Router {
 #[get("")]
 async fn index_users(
     db: web::Data<DbPool>,
-    _user: LoggedUser,
+    _user: EditorUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
     let users = Repository::find_all(&mut conn, 100).await?;
@@ -48,7 +49,7 @@ async fn index_users(
 async fn view_users(
     db: web::Data<DbPool>,
     path: web::Path<String>,
-    _user: LoggedUser,
+    _user: EditorUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let user_id = path.into_inner();
 
@@ -72,7 +73,7 @@ async fn view_users(
 async fn create_users(
     db: web::Data<DbPool>,
     data: web::Json<CreateUser>,
-    _user: LoggedUser,
+    _user: EditorUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
     let users: GetUser = Repository::create(&mut conn, data.into_inner()).await?;
@@ -91,6 +92,7 @@ async fn update_users(
     db: web::Data<DbPool>,
     path: web::Path<String>,
     data: web::Json<User>,
+    _user: EditorUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let user_id = path.into_inner();
 
@@ -114,6 +116,7 @@ async fn update_users(
 async fn delete_users(
     db: web::Data<DbPool>,
     path: web::Path<String>,
+    _user: EditorUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let user_id = path.into_inner();
 

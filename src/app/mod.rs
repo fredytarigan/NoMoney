@@ -2,6 +2,7 @@ use actix_web::web;
 
 mod auth;
 mod families;
+mod permissions;
 mod roles;
 mod users;
 mod utils;
