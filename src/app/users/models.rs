@@ -87,8 +87,10 @@ pub struct LoginUser {
     pub password: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct LoggedUser {
     pub id: Uuid,
     pub username: String,
+    pub role_id: Uuid,
+    pub family_id: Uuid,
 }

@@ -38,8 +38,6 @@ impl FromRequest for LoggedUser {
             Some(header) => header[1].to_string(),
         };
 
-        info!("{:?}", token_value);
-
         let db = match req.app_data::<web::Data<DbPool>>() {
             Some(db) => db.to_owned(),
             None => {
@@ -66,8 +64,6 @@ impl FromRequest for LoggedUser {
             }
         };
 
-        // let bind_db = db.to_owned();
-
         Box::pin(async move {
             let mut conn = db.get().await?;
             let mut cache = cache.get().await.unwrap();
@@ -82,6 +78,8 @@ impl FromRequest for LoggedUser {
                     return Ok(LoggedUser {
                         id: user.id,
                         username: user.username,
+                        role_id: user.role_id,
+                        family_id: user.family_id,
                     });
                 }
             }
