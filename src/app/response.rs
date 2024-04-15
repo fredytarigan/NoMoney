@@ -24,6 +24,7 @@ pub struct Response {
 
 #[derive(Serialize, Deserialize)]
 #[non_exhaustive]
+#[allow(clippy::enum_variant_names)]
 pub enum ResponseVariant {
     OkResponse,
     FailedResponse(FailedResponseCode),
