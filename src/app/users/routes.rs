@@ -5,11 +5,7 @@ use crate::app::utils::parse_uuid;
 use crate::app::Response;
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
-use actix_web::{
-    delete, get, post, put,
-    web::{self},
-    HttpResponse, Result,
-};
+use actix_web::{delete, get, post, put, web, HttpResponse, Result};
 use serde_json::json;
 
 pub struct Router;
@@ -23,7 +19,8 @@ impl Router {
                 .service(create_users)
                 .service(update_users)
                 .service(delete_users),
-        );
+        )
+        .service(web::scope("/profile").service(get_profile));
     }
 }
 
@@ -131,4 +128,22 @@ async fn delete_users(
     let _ = Repository::delete(&mut conn, uid).await?;
 
     Ok(Response::new(200, 2000, String::from("delete user"), None, None).return_ok())
+}
+
+#[get("")]
+async fn get_profile(
+    db: web::Data<DbPool>,
+    user: LoggedUser,
+) -> Result<HttpResponse, ApplicationError> {
+    let mut conn = db.get().await?;
+    let profile = Repository::get_profile(&mut conn, user).await?;
+
+    Ok(Response::new(
+        200,
+        2000,
+        String::from("get profile"),
+        Some(json!(profile)),
+        None,
+    )
+    .return_ok())
 }

@@ -94,3 +94,14 @@ pub struct LoggedUser {
     pub role_id: Uuid,
     pub family_id: Uuid,
 }
+
+#[derive(Serialize, Deserialize, Queryable, QueryableByName)]
+#[diesel(table_name = users)]
+pub struct UserProfile {
+    pub id: Uuid,
+    pub username: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: String,
+    pub email_validated: bool,
+}
