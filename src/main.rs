@@ -23,19 +23,19 @@ use crate::{app::Response, errors::ApplicationError};
 
 #[get("/")]
 async fn index() -> Result<HttpResponse, ApplicationError> {
-    Response::new(200, 2000, String::from("NoMoney API v0.0.1"), None, None).return_ok()
+    Ok(Response::new(200, 2000, String::from("NoMoney API v0.0.1"), None, None).return_ok())
 }
 
 #[get("/healthz")]
 async fn healthz() -> Result<HttpResponse, ApplicationError> {
-    Response::new(
+    Ok(Response::new(
         200,
         2000,
         String::from("NoMoney API is Healthy and Ready"),
         None,
         None,
     )
-    .return_ok()
+    .return_ok())
 }
 
 #[actix_web::main]

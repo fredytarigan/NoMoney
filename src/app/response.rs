@@ -8,13 +8,11 @@ use actix_web::{
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-use crate::errors::ApplicationError;
-
 /*
     Response helper
 */
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Response {
     pub response_code: u16,
     pub status: String,
@@ -105,23 +103,31 @@ impl Response {
         }
     }
 
-    pub fn return_ok(&self) -> Result<HttpResponse, ApplicationError> {
+    pub fn return_ok(&self) -> HttpResponse {
         let response_data = self.build_response();
 
-        Ok(
-            HttpResponse::build(StatusCode::from_u16(self.response_code).unwrap())
-                .insert_header(ContentType::json())
-                .insert_header(Accept::json())
-                .json(&response_data),
-        )
+        HttpResponse::build(StatusCode::from_u16(self.response_code).unwrap())
+            .insert_header(ContentType::json())
+            .insert_header(Accept::json())
+            .json(&response_data)
     }
 
-    pub fn return_failed(&self) -> Result<HttpResponse, ApplicationError> {
-        unimplemented!()
+    pub fn return_failed(&self) -> HttpResponse {
+        let response_data = self.build_response();
+
+        HttpResponse::build(StatusCode::from_u16(self.response_code).unwrap())
+            .insert_header(ContentType::json())
+            .insert_header(Accept::json())
+            .json(&response_data)
     }
 
-    pub fn return_error(&self) -> Result<HttpResponse, ApplicationError> {
-        unimplemented!()
+    pub fn return_error(&self) -> HttpResponse {
+        let response_data = self.build_response();
+
+        HttpResponse::build(StatusCode::from_u16(self.response_code).unwrap())
+            .insert_header(ContentType::json())
+            .insert_header(Accept::json())
+            .json(&response_data)
     }
 
     fn build_response(&self) -> Value {

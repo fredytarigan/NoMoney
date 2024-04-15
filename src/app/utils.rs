@@ -1,6 +1,7 @@
-use crate::errors::ApplicationError;
+use crate::{app::Response, errors::ApplicationError};
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use rand::rngs::OsRng;
+use serde_json::json;
 use uuid::Uuid;
 
 pub fn hash_password(password: String) -> Result<String, ApplicationError> {
@@ -17,7 +18,16 @@ pub fn parse_uuid(uuid: &String) -> Result<Uuid, ApplicationError> {
         Ok(uid) => Ok(uid),
         Err(_) => {
             error!("Invalid input for user id with value: {}", uuid.to_string());
-            Err(ApplicationError::new(422, String::from("Invalid input")))
+
+            let response = Response::new(
+                400,
+                4000,
+                String::from("invalid input provided for resources"),
+                None,
+                Some(json!(["invalid input"])),
+            );
+
+            Err(ApplicationError::new(response))
         }
     }
 }

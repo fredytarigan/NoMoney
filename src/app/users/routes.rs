@@ -1,14 +1,12 @@
 use super::models::*;
 use super::repositories::Repository;
 use crate::app::permissions::EditorUser;
+use crate::app::utils::parse_uuid;
 use crate::app::Response;
-use crate::app::{permissions::AdminUser, utils::parse_uuid};
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
 use actix_web::{
-    delete, get,
-    http::StatusCode,
-    post, put,
+    delete, get, post, put,
     web::{self},
     HttpResponse, Result,
 };
@@ -37,14 +35,14 @@ async fn index_users(
     let mut conn = db.get().await?;
     let users = Repository::find_all(&mut conn, 100).await?;
 
-    Response::new(
+    Ok(Response::new(
         200,
         2000,
         String::from("list of users"),
         Some(json!(users)),
         None,
     )
-    .return_ok()
+    .return_ok())
 }
 
 #[get("/{user_id}")]
@@ -62,14 +60,14 @@ async fn view_users(
     let mut conn = db.get().await?;
     let users = Repository::find_by_id(&mut conn, uid).await?;
 
-    Response::new(
+    Ok(Response::new(
         200,
         2000,
         String::from("get user by id"),
         Some(json!(users)),
         None,
     )
-    .return_ok()
+    .return_ok())
 }
 
 #[post("")]
@@ -81,14 +79,14 @@ async fn create_users(
     let mut conn = db.get().await?;
     let users: GetUser = Repository::create(&mut conn, data.into_inner()).await?;
 
-    Response::new(
+    Ok(Response::new(
         200,
         2000,
         String::from("create user"),
         Some(json!(users)),
         None,
     )
-    .return_ok()
+    .return_ok())
 }
 
 #[put("/{user_id}")]
@@ -107,14 +105,14 @@ async fn update_users(
     let mut conn = db.get().await?;
     let users = Repository::update(&mut conn, uid, data.into_inner()).await?;
 
-    Response::new(
+    Ok(Response::new(
         200,
         2000,
         String::from("update user"),
         Some(json!(users)),
         None,
     )
-    .return_ok()
+    .return_ok())
 }
 
 #[delete("/{user_id}")]
@@ -132,5 +130,5 @@ async fn delete_users(
     let mut conn = db.get().await?;
     let _ = Repository::delete(&mut conn, uid).await?;
 
-    Response::new(200, 2000, String::from("delete user"), None, None).return_ok()
+    Ok(Response::new(200, 2000, String::from("delete user"), None, None).return_ok())
 }

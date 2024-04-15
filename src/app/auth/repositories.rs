@@ -1,8 +1,10 @@
 use super::models::UserPasswordCredentials;
+use crate::Response;
 use crate::{app::users::LoginUser, errors::ApplicationError, redis::CacheConn};
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use mobc_redis::redis::AsyncCommands;
 use rand::{distributions::Alphanumeric, Rng};
+use serde_json::json;
 
 pub struct Repository;
 
@@ -37,7 +39,15 @@ impl Repository {
             .await
             .map_err(|e| {
                 error!("Session Set Error: {}", e.to_string());
-                ApplicationError::new(500, String::from("Unhandled error happen at server side"))
+                let response = Response::new(
+                    500,
+                    5000,
+                    String::from("cache connection error"),
+                    None,
+                    Some(json!("cache error")),
+                );
+
+                ApplicationError::new(response)
             });
 
         Ok(())

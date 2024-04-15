@@ -6,17 +6,27 @@ use argon2::password_hash::Error as HashError;
 use diesel::result::Error as DieselError;
 use diesel_async::pooled_connection::bb8::RunError;
 use serde::Serialize;
+use serde_json::json;
 use std::fmt::Display;
 
-#[derive(Debug, Serialize)]
+use crate::app::Response;
+
+#[derive(Serialize, Debug)]
 pub struct ApplicationError {
-    pub message: String,
-    pub status: u16,
+    response: Response,
 }
 
 impl ApplicationError {
-    pub fn new(status: u16, message: String) -> Self {
-        Self { status, message }
+    pub fn new(response: Response) -> Self {
+        Self { response }
+    }
+
+    pub fn return_error(&self) {
+        self.response.return_error();
+    }
+
+    pub fn return_failed(&self) {
+        self.response.return_failed();
     }
 }
 
@@ -32,11 +42,39 @@ impl From<DieselError> for ApplicationError {
     fn from(error: DieselError) -> Self {
         match error {
             DieselError::DatabaseError(_, err) => {
-                ApplicationError::new(500, err.message().to_string())
-            }
-            DieselError::NotFound => ApplicationError::new(404, String::from("Record not found")),
+                let response = Response::new(
+                    500,
+                    5000,
+                    String::from("database connection error"),
+                    None,
+                    Some(json!(["database error"])),
+                );
 
-            _ => ApplicationError::new(500, format!("Unhandled database error: {}", error)),
+                ApplicationError::new(response)
+            }
+            DieselError::NotFound => {
+                let response = Response::new(
+                    200,
+                    4004,
+                    String::from("requested resources not found"),
+                    None,
+                    None,
+                );
+
+                ApplicationError::new(response)
+            }
+
+            _ => {
+                let response = Response::new(
+                    500,
+                    5000,
+                    String::from("unhandled error happen at server side"),
+                    None,
+                    Some(json!(["database error"])),
+                );
+
+                ApplicationError::new(response)
+            }
         }
     }
 }
@@ -44,11 +82,28 @@ impl From<DieselError> for ApplicationError {
 impl From<RunError> for ApplicationError {
     fn from(error: RunError) -> Self {
         match error {
-            RunError::TimedOut => ApplicationError::new(
-                500,
-                String::from("Server error: connection timed out to database"),
-            ),
-            _ => ApplicationError::new(500, format!("Unhandled database error: {}", error)),
+            RunError::TimedOut => {
+                let response = Response::new(
+                    500,
+                    5000,
+                    String::from("database connection timeout"),
+                    None,
+                    Some(json!(["database error"])),
+                );
+
+                ApplicationError::new(response)
+            }
+            _ => {
+                let response = Response::new(
+                    500,
+                    5000,
+                    String::from("unhandled error happen at server side"),
+                    None,
+                    Some(json!(["database error"])),
+                );
+
+                ApplicationError::new(response)
+            }
         }
     }
 }
@@ -57,23 +112,27 @@ impl From<HashError> for ApplicationError {
     fn from(_: HashError) -> Self {
         {
             error!("Something error when trying to hash incoming password");
-            ApplicationError::new(500, String::from("Something wrong happend in our side"))
+
+            let response = Response::new(
+                500,
+                5000,
+                String::from("crypto hashing error"),
+                None,
+                Some(json!(["hashing error"])),
+            );
+
+            ApplicationError::new(response)
         }
     }
 }
 
 impl ResponseError for ApplicationError {
     fn error_response(&self) -> actix_web::HttpResponse {
-        error!("Response Error: {}", self.message);
+        match self.response.code {
+            400..=499 => self.response.return_failed(),
+            500..=599 => self.response.return_error(),
 
-        let err_json = serde_json::json!({
-            "status": "error",
-            "data": {},
-            "message": self.message
-        });
-
-        HttpResponse::build(StatusCode::from_u16(self.status).unwrap())
-            .insert_header(ContentType::json())
-            .json(err_json)
+            _ => self.response.return_error(),
+        }
     }
 }
