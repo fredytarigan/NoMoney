@@ -4,6 +4,7 @@ use super::repositories::Repository;
 use crate::app::users::Repository as UserRepository;
 use crate::app::RouterConfig;
 use crate::errors::ApplicationError;
+use crate::Response;
 use crate::{database::DbPool, redis::CachePool};
 use actix_web::{
     post,
@@ -61,15 +62,16 @@ async fn login_user_password(
     Repository::set_session_cache(&mut cache_conn, session_path, session_value, session_ttl)
         .await?;
 
-    Ok(HttpResponse::Ok().json(json!(
-        {
-            "status": "success",
-            "data": {
-                "token": token,
-            },
-            "message": null,
-        }
-    )))
+    Response::new(
+        200,
+        2000,
+        String::from("login success"),
+        Some(json!({
+            "token": token
+        })),
+        None,
+    )
+    .return_ok()
 }
 
 #[post("/logout")]

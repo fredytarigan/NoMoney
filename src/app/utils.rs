@@ -1,5 +1,4 @@
 use crate::errors::ApplicationError;
-
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use rand::rngs::OsRng;
 use uuid::Uuid;
