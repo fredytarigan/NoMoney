@@ -1,7 +1,4 @@
-use actix_web::{
-    http::{header::ContentType, StatusCode},
-    HttpResponse, ResponseError,
-};
+use actix_web::ResponseError;
 use argon2::password_hash::Error as HashError;
 use diesel::result::Error as DieselError;
 use diesel_async::pooled_connection::bb8::RunError;
@@ -21,10 +18,12 @@ impl ApplicationError {
         Self { response }
     }
 
+    #[allow(dead_code)]
     pub fn return_error(&self) {
         self.response.return_error();
     }
 
+    #[allow(dead_code)]
     pub fn return_failed(&self) {
         self.response.return_failed();
     }
@@ -41,7 +40,7 @@ impl Display for ApplicationError {
 impl From<DieselError> for ApplicationError {
     fn from(error: DieselError) -> Self {
         match error {
-            DieselError::DatabaseError(_, err) => {
+            DieselError::DatabaseError(_, _) => {
                 let response = Response::new(
                     500,
                     5000,
