@@ -1,16 +1,11 @@
 use super::models::*;
 use super::repositories::Repository;
 use crate::app::permissions::EditorUser;
-use crate::app::{permissions::AdminUser, utils::parse_uuid};
+use crate::app::utils::parse_uuid;
+use crate::app::Response;
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
-use actix_web::{
-    delete, get,
-    http::StatusCode,
-    post, put,
-    web::{self},
-    HttpResponse, Result,
-};
+use actix_web::{delete, get, post, put, web, HttpResponse, Result};
 use serde_json::json;
 
 pub struct Router;
@@ -24,7 +19,8 @@ impl Router {
                 .service(create_users)
                 .service(update_users)
                 .service(delete_users),
-        );
+        )
+        .service(web::scope("/profile").service(get_profile));
     }
 }
 
@@ -36,13 +32,14 @@ async fn index_users(
     let mut conn = db.get().await?;
     let users = Repository::find_all(&mut conn, 100).await?;
 
-    Ok(HttpResponse::Ok().json(json!(
-            {
-            "status": "success",
-            "data": users,
-            "message": null,
-        }
-    )))
+    Ok(Response::new(
+        200,
+        2000,
+        String::from("list of users"),
+        Some(json!(users)),
+        None,
+    )
+    .return_ok())
 }
 
 #[get("/{user_id}")]
@@ -60,13 +57,14 @@ async fn view_users(
     let mut conn = db.get().await?;
     let users = Repository::find_by_id(&mut conn, uid).await?;
 
-    Ok(HttpResponse::Ok().json(json!(
-        {
-            "status": "success",
-            "data": users,
-            "message": null,
-        }
-    )))
+    Ok(Response::new(
+        200,
+        2000,
+        String::from("get user by id"),
+        Some(json!(users)),
+        None,
+    )
+    .return_ok())
 }
 
 #[post("")]
@@ -78,13 +76,14 @@ async fn create_users(
     let mut conn = db.get().await?;
     let users: GetUser = Repository::create(&mut conn, data.into_inner()).await?;
 
-    Ok(HttpResponse::Created().json(json!(
-        {
-            "status": "success",
-            "data": users,
-            "message": null,
-        }
-    )))
+    Ok(Response::new(
+        200,
+        2000,
+        String::from("create user"),
+        Some(json!(users)),
+        None,
+    )
+    .return_ok())
 }
 
 #[put("/{user_id}")]
@@ -103,13 +102,14 @@ async fn update_users(
     let mut conn = db.get().await?;
     let users = Repository::update(&mut conn, uid, data.into_inner()).await?;
 
-    Ok(HttpResponse::Ok().json(json!(
-        {
-            "status": "success",
-            "data": users,
-            "message": null,
-        }
-    )))
+    Ok(Response::new(
+        200,
+        2000,
+        String::from("update user"),
+        Some(json!(users)),
+        None,
+    )
+    .return_ok())
 }
 
 #[delete("/{user_id}")]
@@ -127,5 +127,23 @@ async fn delete_users(
     let mut conn = db.get().await?;
     let _ = Repository::delete(&mut conn, uid).await?;
 
-    Ok(HttpResponse::new(StatusCode::NO_CONTENT))
+    Ok(Response::new(200, 2000, String::from("delete user"), None, None).return_ok())
+}
+
+#[get("")]
+async fn get_profile(
+    db: web::Data<DbPool>,
+    user: LoggedUser,
+) -> Result<HttpResponse, ApplicationError> {
+    let mut conn = db.get().await?;
+    let profile = Repository::get_profile(&mut conn, user).await?;
+
+    Ok(Response::new(
+        200,
+        2000,
+        String::from("get profile"),
+        Some(json!(profile)),
+        None,
+    )
+    .return_ok())
 }

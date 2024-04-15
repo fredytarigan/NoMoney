@@ -4,6 +4,7 @@ use super::repositories::Repository;
 use crate::app::users::Repository as UserRepository;
 use crate::app::RouterConfig;
 use crate::errors::ApplicationError;
+use crate::Response;
 use crate::{database::DbPool, redis::CachePool};
 use actix_web::{
     post,
@@ -35,20 +36,31 @@ async fn login_user_password(
         .await
         .map_err(|e| {
             error!("Login Error: {}", e);
-            ApplicationError::new(
-                403,
-                String::from("Unauthorized, please check your credentials"),
-            )
+            let response = Response::new(
+                500,
+                5000,
+                String::from("cache connection error"),
+                None,
+                Some(json!("cache error")),
+            );
+
+            ApplicationError::new(response)
         })?;
 
     let token = Repository::authorize_user(&user, credentials.into_inner())
         .await
         .map_err(|e| {
             info!("Authorized Error: {}", e);
-            ApplicationError::new(
+
+            let response = Response::new(
                 403,
-                String::from("Unauthorized, please check your credentials"),
-            )
+                4003,
+                String::from("unauthorized request"),
+                None,
+                Some(json!(["unauthorized"])),
+            );
+
+            ApplicationError::new(response)
         })?;
 
     let mut cache_conn = cache.get().await.unwrap();
@@ -61,15 +73,16 @@ async fn login_user_password(
     Repository::set_session_cache(&mut cache_conn, session_path, session_value, session_ttl)
         .await?;
 
-    Ok(HttpResponse::Ok().json(json!(
-        {
-            "status": "success",
-            "data": {
-                "token": token,
-            },
-            "message": null,
-        }
-    )))
+    Ok(Response::new(
+        200,
+        2000,
+        String::from("login success"),
+        Some(json!({
+            "token": token
+        })),
+        None,
+    )
+    .return_ok())
 }
 
 #[post("/logout")]

@@ -1,5 +1,6 @@
 use super::models::SearchRole;
 use super::repositories::Repository;
+use crate::app::Response;
 use crate::app::{permissions::AdminUser, utils::parse_uuid};
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
@@ -32,11 +33,14 @@ async fn index_roles(
 
     let roles = Repository::find_all(&mut conn, 100).await?;
 
-    Ok(HttpResponse::Ok().json(json!({
-        "status": "success",
-        "data": roles,
-        "message": null,
-    })))
+    Ok(Response::new(
+        200,
+        2000,
+        String::from("list of roles"),
+        Some(json!(roles)),
+        None,
+    )
+    .return_ok())
 }
 
 #[get("/{role_id}")]
@@ -55,13 +59,14 @@ async fn view_roles(
 
     let roles = Repository::find_by_id(&mut conn, uid).await?;
 
-    Ok(HttpResponse::Ok().json(json!(
-        {
-            "status": "success",
-            "data": roles,
-            "message": null,
-        }
-    )))
+    Ok(Response::new(
+        200,
+        2000,
+        String::from("get roles"),
+        Some(json!(roles)),
+        None,
+    )
+    .return_ok())
 }
 
 #[get("/search")]
@@ -75,23 +80,27 @@ async fn search_roles_by_name(
             let mut conn = db.get().await?;
             let roles = Repository::find_by_name(&mut conn, &name).await?;
 
-            Ok(HttpResponse::Ok().json(json!(
-                {
-                    "status": "success",
-                    "data": roles,
-                    "message": null,
-                }
-            )))
+            Ok(Response::new(
+                200,
+                2000,
+                String::from("get roles by name"),
+                Some(json!(roles)),
+                None,
+            )
+            .return_ok())
         }
         None => {
             info!("Missing query parameters for \"name\" field");
-            Ok(HttpResponse::Ok().json(json!(
-                {
-                    "status": "failed",
-                    "data": null,
-                    "message": "Missing query parameters for 'name' field",
-                }
-            )))
+
+            let response = Response::new(
+                400,
+                4000,
+                String::from("missing query parameters for 'name' field"),
+                None,
+                Some(json!(["invalid input"])),
+            );
+
+            Err(ApplicationError::new(response))
         }
     }
 }

@@ -179,4 +179,29 @@ impl Repository {
 
         Ok(result)
     }
+
+    pub async fn get_profile(
+        conn: &mut AsyncPgConnection,
+        user: LoggedUser,
+    ) -> Result<UserProfile, ApplicationError> {
+        let profile = sql_query(format!(
+            "SELECT
+                id,
+                username,
+                first_name,
+                last_name,
+                email,
+                email_validated
+            FROM
+                users
+            WHERE
+                username = '{}'
+            ",
+            user.username,
+        ))
+        .get_result::<UserProfile>(conn)
+        .await?;
+
+        Ok(profile)
+    }
 }

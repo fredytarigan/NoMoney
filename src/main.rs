@@ -2,15 +2,16 @@
 #[macro_use]
 extern crate log;
 
+use actix_cors::Cors;
 use actix_web::{
     get, guard,
+    http::header,
     middleware::{self, Logger},
-    web::{self, Json},
-    App, HttpServer, Responder, Result,
+    web::{self},
+    App, HttpResponse, HttpServer, Result,
 };
 use database::run_db_migrations;
 use env_logger::Env;
-use serde_json::json;
 
 mod app;
 mod database;
@@ -18,22 +19,23 @@ mod errors;
 mod redis;
 mod schema;
 
+use crate::{app::Response, errors::ApplicationError};
+
 #[get("/")]
-async fn index() -> Result<impl Responder> {
-    Ok(Json(json!({
-        "status": "success",
-        "data": {},
-        "message": "Hello World From NoMoney",
-    })))
+async fn index() -> Result<HttpResponse, ApplicationError> {
+    Ok(Response::new(200, 2000, String::from("NoMoney API v0.0.1"), None, None).return_ok())
 }
 
 #[get("/healthz")]
-async fn healthz() -> Result<impl Responder> {
-    Ok(Json(json!({
-        "status": "success",
-        "data": {},
-        "message": "application is running and healthy"
-    })))
+async fn healthz() -> Result<HttpResponse, ApplicationError> {
+    Ok(Response::new(
+        200,
+        2000,
+        String::from("NoMoney API is Healthy and Ready"),
+        None,
+        None,
+    )
+    .return_ok())
 }
 
 #[actix_web::main]
@@ -62,8 +64,20 @@ pub async fn main() -> std::io::Result<()> {
     info!("Listening on {} at port {}", server_host, server_address);
 
     HttpServer::new(move || {
+        // setup cors
+        let cors = Cors::default()
+            .allowed_origin("http://127.0.0.1:3000")
+            .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
+            .allowed_headers(vec![
+                header::AUTHORIZATION,
+                header::ACCEPT,
+                header::CONTENT_TYPE,
+            ])
+            .max_age(3600);
+
         App::new()
             .wrap(Logger::default())
+            .wrap(cors)
             .wrap(middleware::DefaultHeaders::new().add(("content-type", "application/json")))
             .wrap(middleware::DefaultHeaders::new().add(("X-Server", "NoMoney")))
             .app_data(web::Data::new(database_connection.clone()))

@@ -4,7 +4,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::roles::Repository as RolesRepository;
 use crate::app::users::Repository as UsersRepository;
+use crate::app::Response;
 use crate::{database::DbPool, errors::ApplicationError, redis::CachePool};
+use serde_json::json;
 use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
@@ -43,7 +45,15 @@ impl FromRequest for AdminUser {
         let token_value: String = match auth_header {
             None => {
                 return Box::pin(async move {
-                    Err(ApplicationError::new(403, String::from("Unauthorized")))
+                    let response = Response::new(
+                        403,
+                        4003,
+                        String::from("unauthorized request"),
+                        None,
+                        Some(json!(["unauthorized"])),
+                    );
+
+                    Err(ApplicationError::new(response))
                 });
             }
             Some(header) => header[1].to_string(),
@@ -54,10 +64,15 @@ impl FromRequest for AdminUser {
             None => {
                 error!("Database Connection Error");
                 return Box::pin(async move {
-                    Err(ApplicationError::new(
+                    let response = Response::new(
                         500,
-                        String::from("Unhandled error happen at the server"),
-                    ))
+                        5000,
+                        String::from("database connection error"),
+                        None,
+                        Some(json!(["database error"])),
+                    );
+
+                    Err(ApplicationError::new(response))
                 });
             }
         };
@@ -67,10 +82,15 @@ impl FromRequest for AdminUser {
             None => {
                 error!("Cache Connection Error");
                 return Box::pin(async move {
-                    Err(ApplicationError::new(
+                    let response = Response::new(
                         500,
-                        String::from("Unhandled error happen at the server"),
-                    ))
+                        5000,
+                        String::from("cache connection error"),
+                        None,
+                        Some(json!("cache error")),
+                    );
+
+                    Err(ApplicationError::new(response))
                 });
             }
         };
@@ -105,7 +125,15 @@ impl FromRequest for AdminUser {
                 }
             }
 
-            Err(ApplicationError::new(403, String::from("Unauthorized")))
+            let response = Response::new(
+                403,
+                4003,
+                String::from("unauthorized request"),
+                None,
+                Some(json!(["unauthorized"])),
+            );
+
+            Err(ApplicationError::new(response))
         })
     }
 }
@@ -130,7 +158,15 @@ impl FromRequest for EditorUser {
         let token_value: String = match auth_header {
             None => {
                 return Box::pin(async move {
-                    Err(ApplicationError::new(403, String::from("Unauthorized")))
+                    let response = Response::new(
+                        403,
+                        4003,
+                        String::from("unauthorized request"),
+                        None,
+                        Some(json!(["unauthorized"])),
+                    );
+
+                    Err(ApplicationError::new(response))
                 });
             }
             Some(header) => header[1].to_string(),
@@ -141,10 +177,15 @@ impl FromRequest for EditorUser {
             None => {
                 error!("Database Connection Error");
                 return Box::pin(async move {
-                    Err(ApplicationError::new(
+                    let response = Response::new(
                         500,
-                        String::from("Unhandled error happen at the server"),
-                    ))
+                        5000,
+                        String::from("database connection error"),
+                        None,
+                        Some(json!(["database error"])),
+                    );
+
+                    Err(ApplicationError::new(response))
                 });
             }
         };
@@ -154,10 +195,15 @@ impl FromRequest for EditorUser {
             None => {
                 error!("Cache Connection Error");
                 return Box::pin(async move {
-                    Err(ApplicationError::new(
+                    let response = Response::new(
                         500,
-                        String::from("Unhandled error happen at the server"),
-                    ))
+                        5000,
+                        String::from("cache connection error"),
+                        None,
+                        Some(json!("cache error")),
+                    );
+
+                    Err(ApplicationError::new(response))
                 });
             }
         };
@@ -192,7 +238,15 @@ impl FromRequest for EditorUser {
                 }
             }
 
-            Err(ApplicationError::new(403, String::from("Unauthorized")))
+            let response = Response::new(
+                403,
+                4003,
+                String::from("unauthorized request"),
+                None,
+                Some(json!(["unauthorized"])),
+            );
+
+            Err(ApplicationError::new(response))
         })
     }
 }

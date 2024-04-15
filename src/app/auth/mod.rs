@@ -7,10 +7,12 @@ pub use routes::Router;
 use super::users::LoggedUser;
 use crate::app::users::Repository as UserRepository;
 use crate::redis::CachePool;
+use crate::Response;
 use crate::{database::DbPool, errors::ApplicationError};
 
 use actix_web::{web, FromRequest};
 use mobc_redis::redis::AsyncCommands;
+use serde_json::json;
 
 impl FromRequest for LoggedUser {
     type Error = ApplicationError;
@@ -32,7 +34,15 @@ impl FromRequest for LoggedUser {
         let token_value: String = match auth_header {
             None => {
                 return Box::pin(async move {
-                    Err(ApplicationError::new(403, String::from("Unauthorized")))
+                    let response = Response::new(
+                        403,
+                        4003,
+                        String::from("unauthorized request"),
+                        None,
+                        Some(json!(["unauthorized"])),
+                    );
+
+                    Err(ApplicationError::new(response))
                 });
             }
             Some(header) => header[1].to_string(),
@@ -43,10 +53,15 @@ impl FromRequest for LoggedUser {
             None => {
                 error!("Database Connection Error");
                 return Box::pin(async move {
-                    Err(ApplicationError::new(
+                    let response = Response::new(
                         500,
-                        String::from("Unhandled error happen at the server"),
-                    ))
+                        5000,
+                        String::from("database connection error"),
+                        None,
+                        Some(json!(["database error"])),
+                    );
+
+                    Err(ApplicationError::new(response))
                 });
             }
         };
@@ -56,10 +71,15 @@ impl FromRequest for LoggedUser {
             None => {
                 error!("Cache Connection Error");
                 return Box::pin(async move {
-                    Err(ApplicationError::new(
+                    let response = Response::new(
                         500,
-                        String::from("Unhandled error happen at the server"),
-                    ))
+                        5000,
+                        String::from("cache connection error"),
+                        None,
+                        Some(json!("cache error")),
+                    );
+
+                    Err(ApplicationError::new(response))
                 });
             }
         };
@@ -84,7 +104,15 @@ impl FromRequest for LoggedUser {
                 }
             }
 
-            Err(ApplicationError::new(403, String::from("Unauthorized")))
+            let response = Response::new(
+                403,
+                4003,
+                String::from("unauthorized request"),
+                None,
+                Some(json!(["unauthorized"])),
+            );
+
+            Err(ApplicationError::new(response))
         })
     }
 }
