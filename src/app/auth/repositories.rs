@@ -33,7 +33,7 @@ impl Repository {
         ttl: usize,
     ) -> Result<(), ApplicationError> {
         let _ = cache
-            .set_ex::<String, String, usize>(path, value, ttl)
+            .set_ex::<String, String, ()>(path, value, ttl)
             .await
             .map_err(|e| {
                 error!("Session Set Error: {}", e.to_string());

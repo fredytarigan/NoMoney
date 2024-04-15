@@ -26,6 +26,8 @@ argon2 = "0.5"
 rand = "0.8"
 mobc = { version = "0.8" }
 mobc-redis = { version = "0.8" }
+tracing = { version = "0.1" }
+tracing-subscriber = { version = "0.3" }
 
 [dev-dependencies]
 reqwest = { version = "0.12", features = ["json", "blocking"] }
