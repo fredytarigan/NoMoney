@@ -1,23 +1,62 @@
-use api::services::users::Person;
+use std::sync::Arc;
+
 use axum::http::StatusCode;
 use axum::{response::IntoResponse, routing::get};
 use axum::{Json, Router};
+use nomoney::services::users::Person;
+use nomoney::AppState;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
+use tracing::info;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
+    /*
+        Load application configuration
+    */
+    let config = nomoney::common::configs::Config::default();
+
+    /*
+       Initialize application logger
+    */
+    let _ = nomoney::common::loggers::Logger::new(&config).init();
+    info!(
+        "successfully configure logging with level {:?}",
+        &config.base.env
+    );
+
     let cors = CorsLayer::new().allow_origin(Any);
+
+    /*
+       Set application state object
+    */
+    let state = Arc::new(AppState {
+        config: config.clone(),
+    });
 
     let app = Router::new()
         .route("/", get(root))
+        .route("/healthz", get(healthz))
         .route("/people", get(get_people))
+        /*
+            Register API Handler
+        */
+        .merge(nomoney::register_routes(state).await)
+        /*
+            Register UI from react app
+        */
         .nest_service("/ui", ServeDir::new("dist"))
         .layer(cors);
 
-    let listener = tokio::net::TcpListener::bind(&format!("0.0.0.0:8083"))
-        .await
-        .unwrap();
+    let listener =
+        tokio::net::TcpListener::bind(&format!("{}:{}", &config.server.addr, &config.server.port))
+            .await
+            .unwrap();
+
+    info!(
+        "server start listening at {} on port {}",
+        &config.server.addr, &config.server.port
+    );
 
     axum::serve(listener, app.into_make_service()).await?;
 
@@ -26,6 +65,10 @@ async fn main() -> Result<(), anyhow::Error> {
 
 async fn root() -> &'static str {
     "Hello World !!!"
+}
+
+async fn healthz() -> &'static str {
+    "Ok Healthy"
 }
 
 async fn get_people() -> impl IntoResponse {

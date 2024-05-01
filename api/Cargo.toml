@@ -1,5 +1,5 @@
 [package]
-name = "api"
+name = "nomoney"
 version = "0.1.0"
 edition = "2021"
 
@@ -12,3 +12,8 @@ serde_json = { version = "1" }
 tokio = { version = "1", features = ["full"] }
 tower-http = { version = "0.5", features = ["cors", "fs"] }
 anyhow = { version = "1" }
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = { version = "0.15" }
+tracing = { version = "0.1" }
+tracing-subscriber = { version = "0.3", features = ["default", "fmt", "std", "json"] }
+uuid = { version = "1", features = ["v4", "serde"] }
