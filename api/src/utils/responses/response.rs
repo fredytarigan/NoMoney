@@ -1,6 +1,7 @@
 use axum::Json;
 use axum::{http::StatusCode, response::IntoResponse};
 use serde_json::json;
+use tracing::info;
 
 /* internal dependency */
 use crate::utils::responses::AppResponse;
@@ -19,7 +20,9 @@ impl Default for AppResponse {
 
 impl IntoResponse for AppResponse {
     fn into_response(self) -> axum::response::Response {
-        let status_code = StatusCode::from_u16(self.code).expect("invalid response code");
+        let status_code =
+            StatusCode::from_u16(self.code).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
+
         let body = json!({
                 "code": self.code,
                 "message": self.message,

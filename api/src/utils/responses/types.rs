@@ -1,5 +1,7 @@
+use serde::Serialize;
 use serde_json::Value;
 
+#[derive(Debug, Serialize)]
 pub struct AppResponse {
     pub code: u16,
     pub status: String,

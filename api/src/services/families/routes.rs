@@ -3,6 +3,7 @@ use axum::routing::{get, post};
 use axum::{response::IntoResponse, Router};
 use serde_json::json;
 use std::sync::Arc;
+use tracing::info;
 
 use super::mocks;
 /* internal dependency */
@@ -31,13 +32,12 @@ impl Routes {
 */
 async fn list_families() -> impl IntoResponse {
     let result = mocks::list_families().await;
-    let response = AppResponse {
+
+    AppResponse {
         data: Some(json!(result.unwrap())),
         message: String::from("from list families"),
         ..AppResponse::default()
-    };
-
-    (StatusCode::OK, response)
+    }
 }
 
 /*
