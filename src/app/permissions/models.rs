@@ -11,18 +11,18 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct AdminUser {
-    id: Uuid,
-    username: String,
-    role_id: Uuid,
-    family_id: Uuid,
+    pub id: Uuid,
+    pub username: String,
+    pub role_id: Uuid,
+    pub family_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct EditorUser {
-    id: Uuid,
-    username: String,
-    role_id: Uuid,
-    family_id: Uuid,
+    pub id: Uuid,
+    pub username: String,
+    pub role_id: Uuid,
+    pub family_id: Uuid,
 }
 
 impl FromRequest for AdminUser {

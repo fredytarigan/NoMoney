@@ -16,6 +16,8 @@ pub fn create_test_families(client: &Client) -> Value {
         .send()
         .unwrap();
 
+    eprintln!("{:?}", response);
+
     assert_eq!(response.status(), StatusCode::CREATED);
 
     let families: Value = response.json().unwrap();

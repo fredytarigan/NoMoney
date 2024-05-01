@@ -14,7 +14,9 @@ pub struct User {
     #[serde(skip_deserializing)]
     pub id: Uuid,
     pub username: String,
+    #[serde(default)]
     pub first_name: Option<String>,
+    #[serde(default)]
     pub last_name: Option<String>,
     #[serde(skip_deserializing)]
     pub password: String,
@@ -33,7 +35,9 @@ pub struct User {
 #[diesel(table_name = users)]
 pub struct CreateUser {
     pub username: String,
+    #[serde(default)]
     pub first_name: Option<String>,
+    #[serde(default)]
     pub last_name: Option<String>,
     pub password: String,
     pub active: bool,
@@ -48,7 +52,9 @@ pub struct CreateUser {
 pub struct GetUser {
     pub id: Uuid,
     pub username: String,
+    #[serde(default)]
     pub first_name: Option<String>,
+    #[serde(default)]
     pub last_name: Option<String>,
     pub active: bool,
     pub family_id: Uuid,
@@ -100,7 +106,9 @@ pub struct LoggedUser {
 pub struct UserProfile {
     pub id: Uuid,
     pub username: String,
+    #[serde(default)]
     pub first_name: Option<String>,
+    #[serde(default)]
     pub last_name: Option<String>,
     pub email: String,
     pub email_validated: bool,
