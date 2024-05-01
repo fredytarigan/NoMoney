@@ -1,6 +1,7 @@
 use crate::{app::Response, errors::ApplicationError};
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use rand::rngs::OsRng;
+use serde::{Deserialize, Deserializer};
 use serde_json::json;
 use uuid::Uuid;
 

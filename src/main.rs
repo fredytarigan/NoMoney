@@ -86,7 +86,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(index)
             // health check route ( /healthz )
             .service(healthz)
-            // api service
+            // api servicebas
             .service(
                 // v1 api scope
                 web::scope("/api/v1")

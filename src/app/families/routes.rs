@@ -1,7 +1,9 @@
 use super::models::*;
 use super::repositories::Repository;
-use crate::app::utils::parse_uuid;
-use crate::app::RouterConfig;
+use crate::app::permissions::EditorUser;
+use crate::app::roles::Repository as RolesRepository;
+use crate::app::{permissions::AdminUser, utils::parse_uuid};
+use crate::app::{Response, RouterConfig};
 use crate::database::DbPool;
 use crate::errors::ApplicationError;
 use actix_web::{
@@ -29,7 +31,10 @@ impl RouterConfig for Router {
 }
 
 #[get("")]
-async fn index_families(db: web::Data<DbPool>) -> Result<HttpResponse, ApplicationError> {
+async fn index_families(
+    db: web::Data<DbPool>,
+    _user: AdminUser,
+) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
 
     let families = Repository::find_all(&mut conn, 100).await?;
@@ -47,6 +52,7 @@ async fn index_families(db: web::Data<DbPool>) -> Result<HttpResponse, Applicati
 async fn view_families(
     db: web::Data<DbPool>,
     path: web::Path<String>,
+    user: EditorUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let family_id = path.into_inner();
 
@@ -56,21 +62,36 @@ async fn view_families(
 
     let mut conn = db.get().await?;
 
-    let families = Repository::find_by_id(&mut conn, uid).await?;
+    let roles = RolesRepository::find_by_id(&mut conn, user.role_id).await?;
 
-    Ok(HttpResponse::Ok().json(json!(
-        {
-            "status": "success",
-            "data": families,
-            "message": null,
-        }
-    )))
+    if roles.name == "admin" || uid == user.family_id {
+        let families = Repository::find_by_id(&mut conn, uid).await?;
+
+        Ok(HttpResponse::Ok().json(json!(
+            {
+                "status": "success",
+                "data": families,
+                "message": null,
+            }
+        )))
+    } else {
+        let response = Response::new(
+            403,
+            4003,
+            String::from("unauthorized request"),
+            None,
+            Some(json!(["unauthorized"])),
+        );
+
+        Err(ApplicationError::new(response))
+    }
 }
 
 #[post("")]
 async fn create_families(
     db: web::Data<DbPool>,
     data: web::Json<CreateFamily>,
+    _user: AdminUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let mut conn = db.get().await?;
 
@@ -90,6 +111,7 @@ async fn update_families(
     db: web::Data<DbPool>,
     path: web::Path<String>,
     data: web::Json<Family>,
+    _user: EditorUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let family_id = path.into_inner();
 
@@ -114,6 +136,7 @@ async fn update_families(
 async fn delete_families(
     db: web::Data<DbPool>,
     path: web::Path<String>,
+    _user: AdminUser,
 ) -> Result<HttpResponse, ApplicationError> {
     let family_id = path.into_inner();
 
