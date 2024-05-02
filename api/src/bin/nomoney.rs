@@ -25,6 +25,21 @@ async fn main() -> Result<(), anyhow::Error> {
         &config.base.env
     );
 
+    /*
+       Initialize database connection pool
+    */
+    let db = nomoney::common::databases::Database::new(&config).await;
+    let db_pool = db.init().await;
+
+    /* run pending migration if exists */
+    let _ = nomoney::common::databases::Database::run_migration(db_pool.clone()).await;
+
+    /*
+       Initialize caching connection pool
+    */
+    let cache = nomoney::common::caches::Cache::new(&config).await;
+    let cache_pool = cache.init().await;
+
     let cors = CorsLayer::new().allow_origin(Any);
 
     /*
@@ -32,6 +47,8 @@ async fn main() -> Result<(), anyhow::Error> {
     */
     let state = Arc::new(AppState {
         config: config.clone(),
+        db_pool: db_pool.clone(),
+        cache_pool: cache_pool.clone(),
     });
 
     let app = Router::new()

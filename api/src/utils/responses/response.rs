@@ -1,12 +1,14 @@
-use axum::Json;
-use axum::{http::StatusCode, response::IntoResponse};
+use axum::{
+    http::{header, HeaderMap, StatusCode},
+    response::IntoResponse,
+    Json,
+};
 use serde_json::json;
-use tracing::info;
 
 /* internal dependency */
-use crate::utils::responses::AppResponse;
+use crate::utils::responses::ApiResponse;
 
-impl Default for AppResponse {
+impl Default for ApiResponse {
     fn default() -> Self {
         Self {
             code: 200,
@@ -18,18 +20,23 @@ impl Default for AppResponse {
     }
 }
 
-impl IntoResponse for AppResponse {
+impl IntoResponse for ApiResponse {
     fn into_response(self) -> axum::response::Response {
         let status_code =
             StatusCode::from_u16(self.code).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
+
+        let mut headers = HeaderMap::new();
+        headers.insert(header::CONTENT_TYPE, "application/json".parse().unwrap());
+        headers.insert(header::ACCEPT, "application/json".parse().unwrap());
 
         let body = json!({
                 "code": self.code,
                 "message": self.message,
                 "data": self.data,
-                "errors": self.errors
+                "errors": self.errors,
+                "status": self.status,
         });
 
-        (status_code, Json(body)).into_response()
+        (status_code, headers, Json(body)).into_response()
     }
 }

@@ -1,4 +1,4 @@
 mod response;
 mod types;
 
-pub use types::AppResponse;
+pub use types::ApiResponse;

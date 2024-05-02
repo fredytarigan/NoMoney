@@ -1,14 +1,12 @@
-use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{response::IntoResponse, Router};
 use serde_json::json;
 use std::sync::Arc;
-use tracing::info;
 
 use super::mocks;
 /* internal dependency */
 use super::types::Routes;
-use crate::utils::responses::AppResponse;
+use crate::utils::responses::ApiResponse;
 use crate::AppState;
 
 impl Routes {
@@ -33,10 +31,10 @@ impl Routes {
 async fn list_families() -> impl IntoResponse {
     let result = mocks::list_families().await;
 
-    AppResponse {
+    ApiResponse {
         data: Some(json!(result.unwrap())),
         message: String::from("from list families"),
-        ..AppResponse::default()
+        ..ApiResponse::default()
     }
 }
 
