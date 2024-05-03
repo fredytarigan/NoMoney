@@ -8,7 +8,7 @@ const AVATAR_2 =
   "https://res.cloudinary.com/dqse2txyi/image/upload/v1666049372/axum_server/img_avatar2_erqray.png";
 
 
-function Dashboard() {
+const Dashboard = () => {
     const [people, setPeople] = useState<Person[]>([]);
 
     useEffect(() => {

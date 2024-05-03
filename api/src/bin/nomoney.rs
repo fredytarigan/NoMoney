@@ -40,7 +40,10 @@ async fn main() -> Result<(), anyhow::Error> {
     let cache = nomoney::common::caches::Cache::new(&config).await;
     let cache_pool = cache.init().await;
 
-    let cors = CorsLayer::new().allow_origin(Any);
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_headers(Any)
+        .allow_methods(Any);
 
     /*
        Set application state object

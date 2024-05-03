@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { DarkThemeToggle } from "flowbite-react";
+import { Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
-import { Person } from "./types";
-import logo from './logo.svg';
+import Login from './pages/Login';
 import './App.css';
 
 
@@ -10,11 +9,11 @@ function App() {
 
   return (
     <>
-      <BrowserRouter basename={process.env.PUBLIC_URL}>
-        <Routes>
-          <Route path="/" element={ <Dashboard /> } />
-        </Routes>
-      </BrowserRouter>
+      
+      <Routes>
+        <Route path="/" element={ <Dashboard /> } />
+        <Route path="/login" element={ <Login /> } />
+      </Routes>
     </>
   );
 }
