@@ -1,5 +1,6 @@
 pub type DbPool = sqlx::Pool<sqlx::Postgres>;
 
+#[derive(Debug)]
 pub struct Database {
     pub db_url: String,
     pub max_connection: u32,

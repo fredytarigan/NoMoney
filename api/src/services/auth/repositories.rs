@@ -1,13 +1,19 @@
+use std::time::SystemTime;
+
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
-use rand::{distributions::Alphanumeric, Rng};
-use serde_json::json;
+use jsonwebtoken::{encode, Header};
+use uuid::Uuid;
 
 /* internal dependency */
 use super::{
     helpers,
-    models::{LoginUser, UserPasswordAuth},
+    models::{LoginUser, UserIsActive, UserPasswordAuth, UserRole},
 };
-use crate::{common::databases::DbPool, utils::errors::ApiError};
+use crate::{
+    common::{configs::Config, databases::DbPool},
+    services::auth::types::{AuthError, Claims, Keys},
+    utils::errors::ApiError,
+};
 
 pub struct Repository;
 
@@ -22,7 +28,11 @@ impl Repository {
             SELECT
                 id,
                 username,
-                password
+                password,
+                email,
+                email_verified,
+                active,
+                role_id
             FROM
                 users
             WHERE
@@ -32,19 +42,36 @@ impl Repository {
         )
         .fetch_one(db)
         .await
-        .map_err(|_| ApiError {
-            code: 401,
-            message: String::from("Unauthorized"),
-            errors: Some(json!("[unauthorized request]")),
-            status: String::from("error"),
-            ..ApiError::default()
-        })?;
+        .map_err(|_| AuthError::WrongCredentials)?;
 
         Ok(user)
     }
 
+    pub async fn get_role_by_username(db: &DbPool, user: &LoginUser) -> Result<UserRole, ApiError> {
+        let role = sqlx::query_as!(
+            UserRole,
+            "
+            SELECT
+                id,
+                name
+            FROM
+                roles
+            WHERE
+                id = $1
+            ",
+            user.role_id
+        )
+        .fetch_one(db)
+        .await
+        .map_err(|_| AuthError::WrongCredentials)?;
+
+        Ok(role)
+    }
+
     pub async fn authorized_user(
+        config: &Config,
         user: &LoginUser,
+        role: &UserRole,
         credentials: &UserPasswordAuth,
     ) -> Result<String, ApiError> {
         let argon = Argon2::default();
@@ -55,21 +82,73 @@ impl Repository {
 
         argon
             .verify_password(credentials.password.as_bytes(), &password_hash)
-            .map_err(|_| ApiError {
-                code: 401,
-                message: String::from("Unauthorized"),
-                errors: Some(json!("[unauthorized request]")),
-                status: String::from("error"),
-                ..ApiError::default()
-            })?;
+            .map_err(|_| AuthError::WrongCredentials)?;
+
+        // set jwt token expiry time
+        // expiry time will be set from configuration
+        let exp = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            + config.jwt.duration;
+
+        let iat = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+
+        let claims = Claims {
+            aud: None,
+            iat: usize::try_from(iat).unwrap(),
+            iss: String::from("Octopus API"),
+            nbf: usize::try_from(exp).unwrap(),
+            sub: user.id,
+            username: user.username.to_owned(),
+            exp: usize::try_from(exp).unwrap(),
+            auth_time: chrono::Utc::now().naive_utc(),
+            email: user.email.to_owned(),
+            email_verified: user.email_verified,
+            active: user.active,
+            role: role.name.to_owned(),
+        };
+
+        let keys = Keys::new(config.jwt.secret.as_bytes());
 
         // generate random token if login success
-        let token = rand::thread_rng()
-            .sample_iter(&Alphanumeric)
-            .take(128)
-            .map(char::from)
-            .collect();
+        let token = encode(&Header::default(), &claims, &keys.encoding)
+            .map_err(|_| AuthError::TokenCreation)?;
 
         Ok(token)
+    }
+
+    pub async fn check_user_is_active(db: &DbPool, uid: &Uuid, username: &String) -> bool {
+        let users = sqlx::query_as!(
+            UserIsActive,
+            "
+            SELECT
+                id,
+                username,
+                active
+            FROM
+                users
+            WHERE
+                id = $1 AND username = $2 AND active = TRUE
+            ",
+            uid,
+            username
+        )
+        .fetch_one(db)
+        .await
+        .map_err(|_| false);
+
+        if let Ok(user) = users {
+            if user.username == "" {
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+        false
     }
 }

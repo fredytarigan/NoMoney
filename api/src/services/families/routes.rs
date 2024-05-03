@@ -6,6 +6,7 @@ use std::sync::Arc;
 use super::mocks;
 /* internal dependency */
 use super::types::Routes;
+use crate::services::auth::Claims;
 use crate::utils::responses::ApiResponse;
 use crate::AppState;
 
@@ -44,7 +45,9 @@ async fn list_families() -> impl IntoResponse {
         * Family ID => UUID
     Return: Result<(), Error>
 */
-async fn get_families() -> impl IntoResponse {
+async fn get_families(claims: Claims) -> impl IntoResponse {
+    println!("{:?}", claims);
+
     "I am get families"
 }
 

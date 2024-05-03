@@ -17,6 +17,7 @@ pub struct Config {
     pub server: ServerConfig,
     pub database: DatabaseConfig,
     pub cache: CacheConfig,
+    pub jwt: JwtConfig,
 }
 
 /*
@@ -58,4 +59,13 @@ pub struct CacheConfig {
     pub pool_max_idle: u64,
     pub pool_timeout_seconds: u64,
     pub pool_expire_seconds: u64,
+}
+
+/*
+    JWT configuration
+*/
+#[derive(Debug, Clone)]
+pub struct JwtConfig {
+    pub secret: String,
+    pub duration: u64,
 }

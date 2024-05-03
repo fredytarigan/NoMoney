@@ -4,4 +4,4 @@ mod repositories;
 mod routes;
 mod types;
 
-pub use types::Routes;
+pub use types::{Claims, Routes};

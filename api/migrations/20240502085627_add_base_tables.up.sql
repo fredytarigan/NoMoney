@@ -57,7 +57,7 @@ CREATE TABLE users (
     role_id uuid NOT NULL REFERENCES roles(id),
     avatar_path VARCHAR(64),
     email VARCHAR(64) NOT NULL,
-    email_validated BOOLEAN NOT NULL DEFAULT FALSE,
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
 
@@ -66,7 +66,7 @@ CREATE TABLE users (
 
 --- seed data for the very first user ---
 --- this user will be a super admin ---
-INSERT INTO USERS (username, password, active, family_id, role_id, email, email_validated)
+INSERT INTO USERS (username, password, active, family_id, role_id, email, email_verified)
 VALUES(
     'admin',
     '$argon2id$v=19$m=19456,t=2,p=1$rzXUR01cSMTEvf6id9jpBA$vciMYiDyPNXwy92jLKaepyz8PxZIM67gCCbcTK5uZkU',
