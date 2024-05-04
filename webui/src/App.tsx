@@ -1,5 +1,3 @@
-import { useState } from 'react'
-import { Button } from './components/ui/button'
 import './App.css'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'

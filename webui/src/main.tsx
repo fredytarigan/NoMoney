@@ -6,7 +6,7 @@ import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter basename={import.meta.env.VITE_PUBLIC_URL}>
+    <BrowserRouter basename='/ui'>
       <App />
     </BrowserRouter>
   </React.StrictMode>,

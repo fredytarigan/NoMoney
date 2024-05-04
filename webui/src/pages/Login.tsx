@@ -8,7 +8,7 @@ import { useState } from "react"
 const Login = () => {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const [loginError, setLoginError] = useState<string>("");
+    // const [loginError, setLoginError] = useState<string>("");
 
     const handleLogin = async () => {
         if (username && password) {

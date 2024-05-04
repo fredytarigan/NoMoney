@@ -6,7 +6,7 @@ use axum::{Json, Router};
 use nomoney::services::users::Person;
 use nomoney::AppState;
 use tower_http::cors::{Any, CorsLayer};
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 use tracing::info;
 
 #[tokio::main]
@@ -65,7 +65,8 @@ async fn main() -> Result<(), anyhow::Error> {
         /*
             Register UI from react app
         */
-        .nest_service("/ui", ServeDir::new("dist"))
+        .nest_service("/ui", ServeFile::new("dist/index.html"))
+        .nest_service("/ui/assets", ServeDir::new("dist/assets"))
         .layer(cors);
 
     let listener =
