@@ -8,7 +8,13 @@ const PrivateRoutes = () => {
             element: (
                 <Dashboard />
             )
-        }
+        },
+        {
+            path: '/dashboard',
+            element: (
+                <Dashboard />
+            )
+        },
     ]
 
     const routes = useRoutes([...privateRoutes]);

@@ -72,8 +72,13 @@ const Login = () => {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="username">Username</Label>
+                            <div 
+                                className="grid gap-2 mb-5"
+                            >
+                                <Label 
+                                    htmlFor="username"
+                                    className="font-semibold"
+                                >Username</Label>
                                 <Input 
                                     id="username" 
                                     name="username"
@@ -83,17 +88,25 @@ const Login = () => {
                                     autoFocus
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
+                                    className="text-center"
                                 />
                             </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="password">Password</Label>
+                            <div 
+                                className="grid gap-2 mb-5"
+                            >
+                                <Label 
+                                    htmlFor="password"
+                                    className="font-semibold"
+                                >Password</Label>
                                 <Input 
                                     id="password" 
                                     name="password"
                                     type="password" 
+                                    placeholder="password"
                                     required 
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    className="text-center"
                                 />
                             </div>
                         </CardContent>

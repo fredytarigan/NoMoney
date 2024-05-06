@@ -37,6 +37,7 @@ pub async fn register_routes(state: Arc<AppState>) -> Router {
         "/api",
         Router::new()
             .merge(services::families::Routes::init(state.clone()))
-            .merge(services::auth::Routes::init(state.clone())),
+            .merge(services::auth::Routes::init(state.clone()))
+            .merge(services::profiles::Routes::init(state.clone())),
     )
 }

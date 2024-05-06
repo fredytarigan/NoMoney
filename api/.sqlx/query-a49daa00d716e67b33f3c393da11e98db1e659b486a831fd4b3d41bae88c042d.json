@@ -1,16 +1,16 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n                id,\n                name\n            FROM\n                roles\n            WHERE\n                id = $1\n            ",
+  "query": "\n            SELECT\n                role_id,\n                role_name\n            FROM\n                roles\n            WHERE\n                role_id = $1\n            ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
+        "name": "role_id",
         "type_info": "Uuid"
       },
       {
         "ordinal": 1,
-        "name": "name",
+        "name": "role_name",
         "type_info": "Varchar"
       }
     ],
@@ -24,5 +24,5 @@
       false
     ]
   },
-  "hash": "71acefecf6cee70036f2e7e944f1b1dfd63716d9549d13f76f7446ac379e959a"
+  "hash": "a49daa00d716e67b33f3c393da11e98db1e659b486a831fd4b3d41bae88c042d"
 }
