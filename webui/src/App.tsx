@@ -1,22 +1,15 @@
-import { useEffect, useState } from 'react';
-import { Routes, Route, BrowserRouter } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import { Person } from "./types";
-import logo from './logo.svg';
-import './App.css';
-
+import './App.css'
+import AppProvider from './providers/apps'
+import PrivateRoutes from './routes/Private'
+import PublicRoutes from './routes/Public'
 
 function App() {
-
   return (
-    <>
-      <BrowserRouter basename={process.env.PUBLIC_URL}>
-        <Routes>
-          <Route path="/" element={ <Dashboard /> } />
-        </Routes>
-      </BrowserRouter>
-    </>
-  );
+    <AppProvider>
+      <PublicRoutes />
+      <PrivateRoutes />
+    </AppProvider>
+  )
 }
 
-export default App;
+export default App

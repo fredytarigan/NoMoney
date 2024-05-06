@@ -53,7 +53,7 @@ impl From<SqlxError> for ApiError {
             },
             SqlxError::RowNotFound => ApiError {
                 message: String::from("resources not found"),
-                errors: Some(json!("[]")),
+                errors: Some(json!("[not found]")),
                 code: 200,
                 status: String::from("success"),
                 ..ApiError::default()

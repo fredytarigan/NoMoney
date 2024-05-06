@@ -26,7 +26,7 @@ impl Repository {
             LoginUser,
             "
             SELECT
-                id,
+                user_id,
                 username,
                 password,
                 email,
@@ -52,12 +52,12 @@ impl Repository {
             UserRole,
             "
             SELECT
-                id,
-                name
+                role_id,
+                role_name
             FROM
                 roles
             WHERE
-                id = $1
+                role_id = $1
             ",
             user.role_id
         )
@@ -102,14 +102,14 @@ impl Repository {
             iat: usize::try_from(iat).unwrap(),
             iss: String::from("Octopus API"),
             nbf: usize::try_from(exp).unwrap(),
-            sub: user.id,
+            sub: user.user_id,
             username: user.username.to_owned(),
             exp: usize::try_from(exp).unwrap(),
             auth_time: chrono::Utc::now().naive_utc(),
             email: user.email.to_owned(),
             email_verified: user.email_verified,
             active: user.active,
-            role: role.name.to_owned(),
+            role: role.role_name.to_owned(),
         };
 
         let keys = Keys::new(config.jwt.secret.as_bytes());
@@ -121,20 +121,20 @@ impl Repository {
         Ok(token)
     }
 
-    pub async fn check_user_is_active(db: &DbPool, uid: &Uuid, username: &String) -> bool {
+    pub async fn check_user_is_active(db: &DbPool, user_id: &Uuid, username: &String) -> bool {
         let users = sqlx::query_as!(
             UserIsActive,
             "
             SELECT
-                id,
+                user_id,
                 username,
                 active
             FROM
                 users
             WHERE
-                id = $1 AND username = $2 AND active = TRUE
+                user_id = $1 AND username = $2 AND active = TRUE
             ",
-            uid,
+            user_id,
             username
         )
         .fetch_one(db)

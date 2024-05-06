@@ -9,7 +9,7 @@ pub struct UserPasswordAuth {
 
 #[derive(Deserialize, Debug)]
 pub struct LoginUser {
-    pub id: Uuid,
+    pub user_id: Uuid,
     pub username: String,
     pub password: String,
     pub email: String,
@@ -20,13 +20,13 @@ pub struct LoginUser {
 
 #[derive(Deserialize)]
 pub struct UserRole {
-    pub id: Uuid,
-    pub name: String,
+    pub role_id: Uuid,
+    pub role_name: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct UserIsActive {
-    pub id: Uuid,
+    pub user_id: Uuid,
     pub username: String,
     pub active: bool,
 }
