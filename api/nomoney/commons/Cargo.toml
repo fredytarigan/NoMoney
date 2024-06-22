@@ -7,3 +7,5 @@ license.workspace = true
 
 [dependencies]
 dotenvy = { version = "0.15" }
+tracing = { version = "0.1" }
+tracing-subscriber = { version = "0.3", features = ["default", "fmt", "json"]}
