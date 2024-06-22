@@ -29,7 +29,7 @@ Cargo.lock
 /data
 
 # remove env files
-/config/app.env
+app.env
 
 # IDE specific
 .vscode
