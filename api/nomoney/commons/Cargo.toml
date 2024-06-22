@@ -1,0 +1,9 @@
+[package]
+name = "commons"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+dotenvy = { version = "0.15" }
